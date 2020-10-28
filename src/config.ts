@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020. Mikhail Lazarev
  */
-
+require("dotenv").config()
 import fs from "fs";
 import { validate, IsNotEmpty } from "class-validator";
 

@@ -2,14 +2,13 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import {ObjectType} from "typedi";
-import {BasicRepositoryI} from "./basicRepository";
-import {DocumentType, getModelForClass} from "@typegoose/typegoose";
-import {ReturnModelType} from "@typegoose/typegoose/lib/types";
-import {CreateQuery, Document} from "mongoose";
+import { ObjectType } from "typedi";
+import { BasicRepositoryI } from "./basicRepository";
+import { DocumentType, getModelForClass } from "@typegoose/typegoose";
+import { ReturnModelType } from "@typegoose/typegoose/lib/types";
+import { CreateQuery, Document } from "mongoose";
 
-export class MongoRepository<T extends Document>
-  implements BasicRepositoryI<T> {
+export class MongoRepository<T> implements BasicRepositoryI<T> {
   private readonly _modelClass: ObjectType<T>;
   protected readonly _model: ReturnModelType<ObjectType<T>, {}>;
   // protected readonly _cache: Redis
@@ -28,16 +27,19 @@ export class MongoRepository<T extends Document>
   }
 
   async insert(item: CreateQuery<DocumentType<T>>): Promise<T> {
-      return await this._model.create(item);
-
+    return await this._model.create(item);
   }
 
-  async save(item: T): Promise<T> {
-      await item.save()
-      return item;
-    // return getManager()
-    //   .getRepository<T>(this._entityClass)
-    //   .save(item);
+  async upsert(item: T): Promise<T> {
+    // @ts-ignore
+    return await this._model.updateOne({ _id: item._id }, item, {
+      upsert: true
+    });
+  }
+
+  async save(item: T) {
+    // @ts-ignore
+    item.save()
   }
 
   // update(item : T, id: string) {

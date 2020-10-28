@@ -6,7 +6,7 @@ import {Inject, Service} from "typedi";
 import {google} from "googleapis";
 import {v4 as uuidv4} from "uuid";
 import config from "../config";
-import {User} from "../core/user";
+import {User, UserModel} from "../core/user";
 import jwt from "jsonwebtoken";
 import {UserRepository} from "../repository/userRepository";
 import {InvalidTokenError, UserNotFoundError} from "../errors/users";
@@ -75,8 +75,7 @@ export class AuthService {
 
         let user = await this._repository.findByEmail(res.data.email);
         if (user === null) {
-          user = new User();
-          user.id = uuidv4();
+          user = new User()
           user.email = res.data.email;
           user.name = res.data.name || "";
           user.family_name = res.data.family_name || "";
@@ -86,8 +85,9 @@ export class AuthService {
           // user.source = "google";
           user.googleId = res.data.id;
 
-          user = await this._repository.save(user);
-          TgBot.sendNotification("New google login", user.email);
+          // await UserModel.create(user);
+          user = await this._repository.insert(user);
+          // TgBot.sendNotification("New google login", user.email);
         }
 
         resolve(this.generateTokenPair(user.id, user.role));

@@ -15,4 +15,6 @@ export class UserRepository extends MongoRepository<User> {
   async findByEmail(email: string): Promise<User | null> {
     return await this._model.findOne({ email }).exec();
   }
+
+
 }

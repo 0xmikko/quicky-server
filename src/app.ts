@@ -4,23 +4,26 @@
 
 import "reflect-metadata";
 import express, { Application } from "express";
+import bodyParser from "body-parser";
 import { Container } from "typedi";
 import * as Sentry from "@sentry/node";
 // import { authChecker, currentUserChecker } from "./middleware/authChecker";
 // import { DefaultErrorHandler } from "./middleware/errorHandler";
-// import { morganLogger } from "./middleware/morganLogger";
 import config from "./config";
 
 import { TgBot } from "./repository/tgRepository";
-import { mongoose } from "@typegoose/typegoose";
+import mongoose from "mongoose";
 import { AuthController } from "./controllers/authController";
 import { ChatController } from "./controllers/chatController";
 import { SocketRouter } from "./controllers/socketRouter";
+import { morganLogger } from "./middleware/morganLogger";
+import { ProfilesController } from "./controllers/proflieController";
+import {AssistantService} from "./services/assistantService";
 
 export const createApp = async (): Promise<Application> => {
   //
 
-  TgBot.init();
+  // TgBot.init();
   // Connecting Database
   try {
     const startTime = Date.now();
@@ -35,6 +38,7 @@ export const createApp = async (): Promise<Application> => {
   }
 
   const app = express();
+  app.use(bodyParser.json());
 
   if (process.env.NODE_ENV !== "development") {
     Sentry.init({
@@ -53,8 +57,13 @@ export const createApp = async (): Promise<Application> => {
 
   const authController = Container.get(AuthController);
   authController.apply(app);
-
+  app.use(morganLogger);
   // set up socket.io and bind it to our
+
+  // Running assistant
+  const assistantService = Container.get(AssistantService);
+  await assistantService.start()
+
   // http server.
   let io = require("socket.io").listen(server, {
     origins: "*:*",
@@ -63,7 +72,7 @@ export const createApp = async (): Promise<Application> => {
   });
 
   try {
-    const socketRouter = new SocketRouter([ChatController]);
+    const socketRouter = new SocketRouter([ChatController, ProfilesController]);
     socketRouter.connect(io);
   } catch (e) {
     console.log("Cant start socket controllers", e);

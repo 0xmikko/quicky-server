@@ -2,29 +2,53 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import {User} from "./user";
-import {Field, ID, ObjectType} from "type-graphql";
-import {prop as Property} from "@typegoose/typegoose";
-import {Ref} from "./types";
-import {ObjectId} from "mongodb";
-import {Document} from "mongoose";
+import { User } from "./user";
+import { Field, ID, ObjectType } from "type-graphql";
+import {modelOptions, prop as Property, Ref} from "@typegoose/typegoose";
+import { ObjectId } from "mongodb";
+import { Document } from "mongoose";
+import {TimeStamps} from "@typegoose/typegoose/lib/defaultClasses";
 
+@modelOptions({
+  schemaOptions: {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  }
+})
 @ObjectType()
-export class Message extends Document{
-  @Field(type => ID)
-  readonly _id: ObjectId;
+export class Message extends TimeStamps{
+  _id: string;
 
   @Field()
   @Property()
   text: string;
 
-  // @Field(type=>Chat)
-  // @Property()
-  // chat: Chat;
+  @Property()
+  pending: boolean;
 
   @Field(type => User)
-  @Property({ ref: Message, required: true })
+  @Property({
+    ref: 'User',
+    required: true,
+    // foreignField: "user",
+    // localField: "_id"
+  })
   user: Ref<User>;
+
+  @Field(type => User)
+  @Property({
+    ref: 'User',
+    required: true,
+    // foreignField: "user",
+    // localField: "_id"
+  })
+  owner: Ref<User>;
+
+  public get id(): string {
+    //@ts-ignore
+    return this._id;
+  }
+
 }
 
 export interface MessagesRepositoryI {

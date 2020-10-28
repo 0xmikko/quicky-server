@@ -12,7 +12,17 @@ export class MessageRepository extends MongoRepository<Message> {
     super(Message);
   }
 
+  async getFull(id: string) : Promise<Message | null> {
+    return await this._model
+        .findById(id)
+        .populate("user", 'name')
+        .exec();
+  }
+
   async listByUser(userId: string): Promise<Message[]> {
-    return this._model.find({ user: userId }).exec();
+    return await this._model
+      .find({owner: userId})
+      .populate("user", 'name')
+      .exec();
   }
 }

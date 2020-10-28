@@ -11,6 +11,6 @@ export interface BasicRepositoryI<T> {
     insert(item: CreateQuery<DocumentType<T>>): Promise<T>
     findById(id : string) : Promise<T | null>
     list() : Promise<T[] | undefined>
-    save(item: T) : Promise<T>
+    upsert(item: T) : Promise<T>
 }
 

@@ -19,7 +19,6 @@ export interface SocketController extends SocketPusherDelegateI {
 }
 
 export interface SocketPusher {
-    pushPendingQueue(event: SocketUpdate): void
     pushUpdateQueue(event: SocketUpdate): void
 }
 

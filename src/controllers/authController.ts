@@ -6,7 +6,7 @@ import { Express, Request, Response } from "express";
 import { Inject, Service } from "typedi";
 import { transformAndValidate } from "class-transformer-validator";
 import { AuthService } from "../services/authService";
-import { CodeOAuthDTO } from "../payload/userPayload";
+import {CodeOAuthDTO, RefreshTokenReq} from "../payload/userPayload";
 
 @Service()
 export class AuthController {
@@ -14,8 +14,9 @@ export class AuthController {
   private _service: AuthService;
 
   apply(app: Express) {
-    app.get("/auth/google/login/", this.redirectGoogle);
-    app.post("/auth/google/done/", this.loginGoogle);
+    app.get("/auth/google/login/", this.redirectGoogle.bind(this));
+    app.post("/auth/google/done/", this.loginGoogle.bind(this));
+    app.post("/auth/token/refresh/", this.refresh.bind(this));
   }
 
   redirectGoogle(req: Request, res: Response) {
@@ -26,13 +27,31 @@ export class AuthController {
 
   async loginGoogle(req: Request, res: Response) {
     try {
-      const codeRequest = await transformAndValidate(CodeOAuthDTO, req);
+      const codeRequest = await transformAndValidate(
+        CodeOAuthDTO,
+        req.body as CodeOAuthDTO
+      );
       console.log(codeRequest);
 
       const tokenPair = await this._service.loginGoogle(codeRequest);
-      return tokenPair;
+      res.send(tokenPair);
     } catch (e) {
       console.log(e);
     }
   }
+
+  async refresh(req: Request, res: Response) {
+    try {
+      const refreshTokenReq = await transformAndValidate(
+          RefreshTokenReq,
+          req.body as RefreshTokenReq
+      );
+
+      const tokenPair = await this._service.refresh(refreshTokenReq);
+      res.send(tokenPair);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
 }

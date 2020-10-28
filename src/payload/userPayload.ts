@@ -1,10 +1,10 @@
-
 /*
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import {IsNotEmpty} from "class-validator";
-import {Field, ObjectType} from "type-graphql";
+import { IsNotEmpty } from "class-validator";
+import { Field, ObjectType } from "type-graphql";
+import { User } from "../core/user";
 
 export interface tokenData {
   user_id: string;
@@ -17,15 +17,28 @@ export interface TokenPair {
   refresh: string;
 }
 
-@ObjectType()
 export class Profile {
-
   @Field()
   id: string;
 
   @Field()
   name: string;
 
+  @Field({ nullable: true })
+  avatar_url?: string;
+
+  isQBTokenEntered: boolean;
+
+  constructor(user: User) {
+    this.id = user.id;
+    this.name = user.name;
+    this.avatar_url = user.avatar_url;
+    console.log("QBT", user._qbToken);
+    this.isQBTokenEntered =
+      user._qbToken !== null &&
+      user._qbToken !== "" &&
+      user._qbToken !== undefined;
+  }
 }
 
 export class CodeOAuthDTO {
