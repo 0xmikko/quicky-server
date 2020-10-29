@@ -5,23 +5,17 @@
 import { Inject, Service } from "typedi";
 import { Message } from "../core/message";
 import { MessageRepository } from "../repository/messageRepository";
-import { SocketPusher } from "../core/socket";
+import {SocketPusher, SocketPusherDelegate} from "../core/socket";
 import { PostMessageDTO } from "../payload/chatPayload";
 import { AssistantService } from "./assistantService";
 
 @Service()
-export class ChatService {
+export class ChatService extends SocketPusherDelegate{
   @Inject()
   private _repository: MessageRepository;
 
   @Inject()
   private _assistantService: AssistantService;
-
-  private _pusher: SocketPusher;
-
-  setPusher(pusher: SocketPusher): void {
-    this._pusher = pusher;
-  }
 
   async postMessage(userId: string, dto: PostMessageDTO): Promise<Message> {
     const newMessage = await this._repository.insert({

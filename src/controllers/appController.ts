@@ -8,17 +8,16 @@ import {
   SocketPusher,
   SocketWithToken
 } from "../core/socket";
-import { PostMessageDTO } from "../payload/chatPayload";
 import { Container, Service } from "typedi";
-import { ChatService } from "../services/chatService";
+import { AppService } from "../services/appService";
 
 @Service()
-export class ChatController implements SocketController {
-  private _service: ChatService;
-  private _namespace = "chat";
+export class AppController implements SocketController {
+  private _service: AppService;
+  private _namespace = "app";
 
   constructor() {
-    this._service = Container.get(ChatService);
+    this._service = Container.get(AppService);
   }
 
   setPusher(pusher: SocketPusher): void {
@@ -31,16 +30,15 @@ export class ChatController implements SocketController {
 
   getListeners(socket: SocketWithToken, userId: string): socketListeners {
     return {
-      messages: async (_: string, opHash: string) => {
-        const data = await this._service.getMessages(userId);
+      list: async (_: string, opHash: string) => {
+        const data = await this._service.list(userId);
         console.log(data);
         socket.emit(this._namespace + ":updateList", data);
         socket.ok(opHash);
       },
 
-      postMessage: async (dto: PostMessageDTO, opHash: string) => {
-        const newMessage = await this._service.postMessage(userId, dto);
-        socket.emit(this._namespace + ":updateMessage", newMessage);
+      new: async (url: string, opHash: string) => {
+        await this._service.connectApp(userId, url);
         socket.ok(opHash);
       }
     };

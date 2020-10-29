@@ -18,7 +18,8 @@ import { ChatController } from "./controllers/chatController";
 import { SocketRouter } from "./controllers/socketRouter";
 import { morganLogger } from "./middleware/morganLogger";
 import { ProfilesController } from "./controllers/proflieController";
-import {AssistantService} from "./services/assistantService";
+import { AssistantService } from "./services/assistantService";
+import { AppController } from "./controllers/appController";
 
 export const createApp = async (): Promise<Application> => {
   //
@@ -62,7 +63,7 @@ export const createApp = async (): Promise<Application> => {
 
   // Running assistant
   const assistantService = Container.get(AssistantService);
-  await assistantService.start()
+  await assistantService.start();
 
   // http server.
   let io = require("socket.io").listen(server, {
@@ -72,7 +73,11 @@ export const createApp = async (): Promise<Application> => {
   });
 
   try {
-    const socketRouter = new SocketRouter([ChatController, ProfilesController]);
+    const socketRouter = new SocketRouter([
+      AppController,
+      ChatController,
+      ProfilesController
+    ]);
     socketRouter.connect(io);
   } catch (e) {
     console.log("Cant start socket controllers", e);

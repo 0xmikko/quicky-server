@@ -29,7 +29,7 @@ export class ProfileService implements SocketPusherDelegateI {
   async setQBToken(id: string, qbToken: string): Promise<Profile | undefined> {
     const user = await this._repository.findById(id);
     if (user === null) throw new Error("User not found");
-    user._qbToken = qbToken;
+    user._qbToken = qbToken.trim();
     await this._repository.save(user);
     return new Profile(user);
   }

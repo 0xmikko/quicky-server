@@ -22,6 +22,15 @@ export interface SocketPusher {
     pushUpdateQueue(event: SocketUpdate): void
 }
 
+export abstract class SocketPusherDelegate {
+    protected _pusher: SocketPusher;
+
+    setPusher(pusher: SocketPusher): void {
+        this._pusher = pusher;
+    }
+
+}
+
 export interface SocketWithToken extends SocketIO.Socket, SocketPusher {
     tData: tokenData;
     ok: (opHash: string) => void;

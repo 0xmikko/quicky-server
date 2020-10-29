@@ -30,24 +30,14 @@ export class ProfilesController implements SocketController {
   getListeners(socket: SocketWithToken, userId: string): socketListeners {
     return {
       retrieve: async (data: string, opHash: string) => {
-        try {
-          const result = await this._service.retrieve(userId);
-          socket.emit(this._namespace + ":updateDetails", result);
-          socket.ok(opHash);
-        } catch (e) {
-          console.log(e);
-          socket.failure(opHash, e);
-        }
+        const result = await this._service.retrieve(userId);
+        socket.emit(this._namespace + ":updateDetails", result);
+        socket.ok(opHash);
       },
       setQBToken: async (token: string, opHash: string) => {
-        try {
-          const result = await this._service.setQBToken(userId, token)
-          socket.emit(this._namespace + ":updateDetails", result);
-          socket.ok(opHash);
-        } catch (e) {
-          console.log(e);
-          socket.failure(opHash, e);
-        }
+        const result = await this._service.setQBToken(userId, token);
+        socket.emit(this._namespace + ":updateDetails", result);
+        socket.ok(opHash);
       }
     };
   }

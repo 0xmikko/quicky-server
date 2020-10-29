@@ -2,13 +2,17 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import SocketIO, {Socket} from 'socket.io';
-import socketioJwt from 'socketio-jwt';
-import config from '../config';
-import {SocketUpdate} from '../core/operations';
-import {Queue} from '../core/types';
-import {SocketController, SocketPusher, SocketWithToken} from '../core/socket';
-import {Container, ObjectType} from "typedi";
+import SocketIO, { Socket } from "socket.io";
+import socketioJwt from "socketio-jwt";
+import config from "../config";
+import { SocketUpdate } from "../core/operations";
+import { Queue } from "../core/types";
+import {
+  SocketController,
+  SocketPusher,
+  SocketWithToken
+} from "../core/socket";
+import { Container, ObjectType } from "typedi";
 
 export class SocketRouter implements SocketPusher {
   private readonly socketsMobilePool: Record<string, Socket> = {};
@@ -20,36 +24,36 @@ export class SocketRouter implements SocketPusher {
   constructor(controllerClasses: ObjectType<SocketController>[]) {
     const controllers = controllerClasses.map(cClass => Container.get(cClass));
     this._controllers = [...controllers];
-    controllers.forEach((cnt) => cnt.setPusher(this));
+    controllers.forEach(cnt => cnt.setPusher(this));
     setTimeout(() => this.updateQueue(), 5000);
   }
 
   connect(io: SocketIO.Server) {
-    const mobileNsp = io.of('/mobile');
+    const mobileNsp = io.of("/mobile");
     mobileNsp
       .on(
-        'connection',
+        "connection",
         socketioJwt.authorize({
           secret: config.jwt_secret,
           timeout: 15000, // 15 seconds to send the authentication message
-          decodedPropertyName: 'tData',
-        }),
+          decodedPropertyName: "tData"
+        })
       )
-      .on('authenticated', (socket: SocketWithToken) =>
-        this._onNewAuthSocket.bind(this)(socket, 'mobile'),
+      .on("authenticated", (socket: SocketWithToken) =>
+        this._onNewAuthSocket.bind(this)(socket, "mobile")
       );
-    const webNsp = io.of('/web');
+    const webNsp = io.of("/web");
     webNsp
       .on(
-        'connection',
+        "connection",
         socketioJwt.authorize({
           secret: config.jwt_secret,
           timeout: 15000, // 15 seconds to send the authentication message
-          decodedPropertyName: 'tData',
-        }),
+          decodedPropertyName: "tData"
+        })
       )
-      .on('authenticated', (socket: SocketWithToken) =>
-        this._onNewAuthSocket.bind(this)(socket, 'web'),
+      .on("authenticated", (socket: SocketWithToken) =>
+        this._onNewAuthSocket.bind(this)(socket, "web")
       );
   }
 
@@ -57,7 +61,7 @@ export class SocketRouter implements SocketPusher {
   private _onNewAuthSocket(socket: SocketWithToken, type: string) {
     const userId = socket.tData.user_id;
     const socketsPool =
-      type === 'mobile' ? this.socketsMobilePool : this.socketsWebPool;
+      type === "mobile" ? this.socketsMobilePool : this.socketsWebPool;
 
     // Add new socket in socketsPool connection array
     socketsPool[userId] = socket;
@@ -70,24 +74,24 @@ export class SocketRouter implements SocketPusher {
     });
 
     // Add delete listener
-    socket.on('disconnect', () => {
+    socket.on("disconnect", () => {
       //this socket is authenticated, we are good to handle more events from it.
       console.log(`bye ${userId}`);
       delete socketsPool[userId];
     });
 
     socket.ok = (opHash: string) => {
-      socket.emit('operations:update', {
+      socket.emit("operations:update", {
         id: opHash,
-        status: 'STATUS.SUCCESS',
+        status: "STATUS.SUCCESS"
       });
     };
 
     socket.failure = (opHash, error) => {
-      socket.emit('operations:update', {
+      socket.emit("operations:update", {
         id: opHash,
-        status: 'STATUS.FAILURE',
-        error,
+        status: "STATUS.FAILURE",
+        error
       });
     };
 
@@ -95,13 +99,13 @@ export class SocketRouter implements SocketPusher {
     for (const controller of this._controllers) {
       const listeners = controller.getListeners(socket, userId);
 
-      const {namespace} = controller;
-      Object.entries(listeners).map((l) => {
+      const { namespace } = controller;
+      Object.entries(listeners).map(l => {
         const event = l[0];
         const handler = l[1];
         socket.on(
-          namespace + ':' + event,
-          this.loggerMiddleware(namespace, event, handler),
+          namespace + ":" + event,
+          this.loggerMiddleware(namespace, event, handler, socket)
         );
       });
       console.log(`[SOCKET.IO] : ${namespace} | listeners connected`);
@@ -111,14 +115,25 @@ export class SocketRouter implements SocketPusher {
   private loggerMiddleware(
     namespace: string,
     event: string,
-    fn: (...args: any[]) => Promise<void>,
+    fn: (data: any, opHash: string) => Promise<void>,
+    socket: Socket
   ): any {
-    return async function (...args: any[]) {
+    return async function(data: any, opHash: string) {
       const start = Date.now();
-      await fn(...args);
+      try {
+        await fn(data, opHash);
+      } catch (error) {
+        console.log(error);
+        socket.emit("operations:update", {
+          id: opHash,
+          status: "STATUS.FAILURE",
+          error
+        });
+      }
+
       const finish = Date.now();
       console.log(
-        `[SOCKET.IO] : ${namespace} | ${event} | ${finish - start} ms`,
+        `[SOCKET.IO] : ${namespace} | ${event} | ${finish - start} ms`
       );
     };
   }
@@ -159,11 +174,6 @@ export class SocketRouter implements SocketPusher {
     this._updateQueue.push(event);
   }
 
-  public pushPendingQueue(event: SocketUpdate) {
-    // ToDo: Add hash skipping
-    this._pendingQueue.push(event);
-  }
-
   private async updateQueue() {
     while (await this.updateQueueElm()) {}
     setTimeout(() => this.updateQueue(), 100);
@@ -184,12 +194,12 @@ export class SocketRouter implements SocketPusher {
 
     const payload = await msg.handler();
     if (mobileClientSocket !== undefined) {
-      console.log('[UPDATE:MOBILE]', msg.event);
+      console.log("[UPDATE:MOBILE]", msg.event);
       mobileClientSocket.emit(msg.event, payload);
     }
 
     if (webClientSocket !== undefined) {
-      console.log('[UPDATE:WEB]');
+      console.log("[UPDATE:WEB]");
       webClientSocket.emit(msg.event, payload);
     }
 

@@ -12,7 +12,7 @@ import {
 import { ObjectId } from "mongodb";
 import { Message } from "./message";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses";
-import {EncryptHelper} from "../helpers/encrypt";
+import { EncryptHelper } from "../helpers/encrypt";
 
 export interface UserID {
   id: string;
@@ -26,12 +26,13 @@ export interface UserID {
 })
 @pre<User>("save", function() {
   if (!this.isModified("_qbToken")) return;
-  this._qbToken = this._qbToken !=="" ? EncryptHelper.encrypt(this._qbToken) : null;
+  this._qbToken =
+    this._qbToken !== "" ? EncryptHelper.encrypt(this._qbToken) : null;
 })
 export class User extends TimeStamps {
   _id: string;
 
-  @Property()
+  @Property({ index: true })
   email: string;
 
   @Property()
@@ -72,11 +73,11 @@ export class User extends TimeStamps {
     return this._id;
   }
 
-  getQBToken() : string {
-    return EncryptHelper.decrypt(this._qbToken)
+  getQBTokenElseThrow(): string {
+    if (this._qbToken === null || this._qbToken === undefined)
+      throw new Error("Invalid QB token");
+    return EncryptHelper.decrypt(this._qbToken);
   }
-
 }
 
 export const UserModel = getModelForClass(User);
-

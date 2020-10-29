@@ -13,6 +13,7 @@
   "dependencies": {
     "@sentry/node": "^5.27.1",
     "@typegoose/typegoose": "^7.4.1",
+    "@types/axios": "^0.14.0",
     "@types/body-parser": "^1.19.0",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.8",
@@ -26,6 +27,7 @@
     "@types/socketio-jwt": "^0.2.0",
     "@types/uuid": "^8.3.0",
     "apollo-server-express": "^2.18.2",
+    "axios": "^0.21.0",
     "body-parser": "^1.19.0",
     "class-transformer": "^0.3.1",
     "class-transformer-validator": "^0.9.1",

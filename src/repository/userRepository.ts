@@ -16,5 +16,9 @@ export class UserRepository extends MongoRepository<User> {
     return await this._model.findOne({ email }).exec();
   }
 
-
+  async getQBTokenElseThrow(id: string): Promise<string> {
+    const user = await this.findById(id);
+    if (user === null || user === undefined) throw new Error("User not found");
+    return user.getQBTokenElseThrow();
+  }
 }
