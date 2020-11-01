@@ -2,17 +2,23 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import {Inject, Service} from "typedi";
-import {google} from "googleapis";
-import {v4 as uuidv4} from "uuid";
+import { Inject, Service } from "typedi";
+import { google } from "googleapis";
+import { v4 as uuidv4 } from "uuid";
 import config from "../config";
-import {User, UserModel} from "../core/user";
+import { User, UserModel } from "../core/user";
 import jwt from "jsonwebtoken";
-import {UserRepository} from "../repository/userRepository";
-import {InvalidTokenError, UserNotFoundError} from "../errors/users";
-import {UnknownInternalError} from "../errors/unknown";
-import {CodeOAuthDTO, RefreshTokenReq, tokenData, TokenPair,} from "../payload/userPayload";
-import {TgBot} from "../repository/tgRepository";
+import { UserRepository } from "../repository/userRepository";
+import { InvalidTokenError, UserNotFoundError } from "../errors/users";
+import { UnknownInternalError } from "../errors/unknown";
+import {
+  CodeOAuthDTO,
+  RefreshTokenReq,
+  tokenData,
+  TokenPair
+} from "../payload/userPayload";
+import { TgBot } from "../repository/tgRepository";
+import { RedisCache } from "../repository/redisCache";
 
 @Service()
 export class AuthService {
@@ -36,7 +42,7 @@ export class AuthService {
     const scopes = [
       "openid",
       "https://www.googleapis.com/auth/userinfo.profile",
-      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.email"
     ];
 
     const url = oauth2Client.generateAuthUrl({
@@ -44,7 +50,7 @@ export class AuthService {
       access_type: "offline",
 
       // If you only need one scope you can pass it as a string
-      scope: scopes,
+      scope: scopes
     });
 
     return url;
@@ -75,7 +81,7 @@ export class AuthService {
 
         let user = await this._repository.findByEmail(res.data.email);
         if (user === null) {
-          user = new User()
+          user = new User();
           user.email = res.data.email;
           user.name = res.data.name || "";
           user.family_name = res.data.family_name || "";
@@ -127,6 +133,20 @@ export class AuthService {
     });
   }
 
+  async getAppToken(user_id: string): Promise<string> {
+    const newToken = uuidv4();
+    await RedisCache.client.set(`OTT_${newToken}`, user_id, 'ex', 100);
+
+    return newToken;
+  }
+
+  async loginWithToken(dto: CodeOAuthDTO): Promise<TokenPair> {
+    const id = await RedisCache.client.get(`OTT_${dto.code}`);
+    if (id === null) throw new Error("Token not found");
+    let user = await this._repository.findById(id);
+    if (user === null) throw UserNotFoundError;
+    return this.generateTokenPair(user.id, user.role)
+  }
   private generateTokenPair(user_id: string, role: string): TokenPair {
     const HOUR = 3600; // Hour in seconds
 
@@ -139,7 +159,7 @@ export class AuthService {
     const refresh = jwt.sign(refreshData, config.jwt_secret);
     return {
       access,
-      refresh,
+      refresh
     };
   }
 }

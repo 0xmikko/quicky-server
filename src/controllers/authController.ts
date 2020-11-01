@@ -17,6 +17,7 @@ export class AuthController {
     app.get("/auth/google/login/", this.redirectGoogle.bind(this));
     app.post("/auth/google/done/", this.loginGoogle.bind(this));
     app.post("/auth/token/refresh/", this.refresh.bind(this));
+    app.post("/auth/app/token/", this.loginWithToken.bind(this));
   }
 
   redirectGoogle(req: Request, res: Response) {
@@ -34,7 +35,7 @@ export class AuthController {
       console.log(codeRequest);
 
       const tokenPair = await this._service.loginGoogle(codeRequest);
-      res.send(tokenPair);
+      res.status(200).send(tokenPair);
     } catch (e) {
       console.log(e);
     }
@@ -49,6 +50,21 @@ export class AuthController {
 
       const tokenPair = await this._service.refresh(refreshTokenReq);
       res.send(tokenPair);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async loginWithToken(req: Request, res: Response) {
+    try {
+      const codeRequest = await transformAndValidate(
+          CodeOAuthDTO,
+          req.body as CodeOAuthDTO
+      );
+      console.log(codeRequest);
+
+      const tokenPair = await this._service.loginWithToken(codeRequest);
+      res.status(200).send(tokenPair);
     } catch (e) {
       console.log(e);
     }

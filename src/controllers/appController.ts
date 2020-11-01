@@ -8,17 +8,19 @@ import {
   SocketPusher,
   SocketWithToken
 } from "../core/socket";
-import { Container, Service } from "typedi";
+import { Inject, Service } from "typedi";
 import { AppService } from "../services/appService";
+import { AuthService } from "../services/authService";
 
 @Service()
 export class AppController implements SocketController {
+  @Inject()
   private _service: AppService;
-  private _namespace = "app";
 
-  constructor() {
-    this._service = Container.get(AppService);
-  }
+  @Inject()
+  private _authService: AuthService;
+
+  private _namespace = "app";
 
   setPusher(pusher: SocketPusher): void {
     this._service.setPusher(pusher);
@@ -30,6 +32,19 @@ export class AppController implements SocketController {
 
   getListeners(socket: SocketWithToken, userId: string): socketListeners {
     return {
+      getAppToken: async (_: string, opHash: string) => {
+        const result = await this._authService.getAppToken(userId);
+        socket.emit(this._namespace + ":token", result);
+        socket.ok(opHash);
+      },
+
+      retrieve: async (_:string, opHash: string) => {
+        const result = await this._service.retrieve(userId);
+        console.log(result)
+        socket.emit(this._namespace + ":updateDetails", result);
+        socket.ok(opHash);
+      },
+
       list: async (_: string, opHash: string) => {
         const data = await this._service.list(userId);
         console.log(data);

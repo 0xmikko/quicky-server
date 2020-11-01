@@ -11,13 +11,16 @@ import {
   SocketPusher,
   SocketWithToken
 } from "../core/socket";
+import {AuthService} from "../services/authService";
 
 @Service()
 export class ProfilesController implements SocketController {
   @Inject()
   private _service: ProfileService;
 
-  private _namespace = "profile";
+
+
+  private readonly _namespace = "profile";
 
   get namespace(): string {
     return this._namespace;
@@ -38,7 +41,9 @@ export class ProfilesController implements SocketController {
         const result = await this._service.setQBToken(userId, token);
         socket.emit(this._namespace + ":updateDetails", result);
         socket.ok(opHash);
-      }
+      },
+
+
     };
   }
 }

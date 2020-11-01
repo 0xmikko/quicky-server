@@ -6,7 +6,7 @@ import { modelOptions, Ref } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses";
 import { prop as Property } from "@typegoose/typegoose/lib/prop";
 import { User } from "./user";
-import { Embedding } from "./embedding";
+import { AppEntity } from "./appEntity";
 
 @modelOptions({
   schemaOptions: {
@@ -21,6 +21,9 @@ export class App extends TimeStamps {
   qbAppId: string;
 
   @Property()
+  qbHostName: string;
+
+  @Property()
   name: string;
 
   @Property()
@@ -29,8 +32,27 @@ export class App extends TimeStamps {
   @Property()
   qbUpdated: Date;
 
-  @Property({ ref: "Embedding" })
-  embeddings: Ref<Embedding>[];
+  @Property()
+  logoUrl: string;
+
+  // SPLASH SCREEN
+  @Property()
+  splashTitle: string;
+
+  @Property()
+  splashTitleColor: string;
+
+  @Property()
+  splashSubtitle: string;
+
+  @Property()
+  splashSubtitleColor: string;
+
+  @Property()
+  splashBackground: string;
+
+  @Property({ type: () => [AppEntity] })
+  entities: Array<AppEntity>;
 
   @Property({
     ref: "User",

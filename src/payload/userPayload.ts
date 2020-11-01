@@ -33,7 +33,6 @@ export class Profile {
     this.id = user.id;
     this.name = user.name;
     this.avatar_url = user.avatar_url;
-    console.log("QBT", user._qbToken);
     this.isQBTokenEntered =
       user._qbToken !== null &&
       user._qbToken !== "" &&

@@ -5,6 +5,7 @@
 import "reflect-metadata";
 import express, { Application } from "express";
 import bodyParser from "body-parser";
+import cors from "cors";
 import { Container } from "typedi";
 import * as Sentry from "@sentry/node";
 // import { authChecker, currentUserChecker } from "./middleware/authChecker";
@@ -25,6 +26,7 @@ export const createApp = async (): Promise<Application> => {
   //
 
   // TgBot.init();
+
   // Connecting Database
   try {
     const startTime = Date.now();
@@ -39,6 +41,7 @@ export const createApp = async (): Promise<Application> => {
   }
 
   const app = express();
+  app.use(cors({ origin: "*" }));
   app.use(bodyParser.json());
 
   if (process.env.NODE_ENV !== "development") {
