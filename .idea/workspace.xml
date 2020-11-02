@@ -19,14 +19,10 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18652e20-c138-4c79-99d8-1e1911e175de" name="Default Changelist" comment="assistant works with mobile!">
-      <change afterPath="$PROJECT_DIR$/src/entities/contactEntity.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/entities/settingsEntity.ts" afterDir="false" />
+    <list default="true" id="18652e20-c138-4c79-99d8-1e1911e175de" name="Default Changelist" comment="Entities and entity inheritance done!">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/appEntity.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/appEntity.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/embedding.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/field.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/field.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/appService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/appService.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/contactEntity.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/contactEntity.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +94,8 @@
       <workItem from="1604085932851" duration="9331000" />
       <workItem from="1604139120888" duration="12438000" />
       <workItem from="1604300552612" duration="60000" />
-      <workItem from="1604301413229" duration="4395000" />
+      <workItem from="1604301413229" duration="7331000" />
+      <workItem from="1604319336638" duration="2355000" />
     </task>
     <task id="LOCAL-00001" summary="Server skeleton done">
       <created>1603807610801</created>
@@ -128,7 +125,14 @@
       <option name="project" value="LOCAL" />
       <updated>1604252034262</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Entities and entity inheritance done!">
+      <created>1604306724325</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1604306724325</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -151,7 +155,8 @@
     <MESSAGE value="Chat &amp; assistant skeleton works pretty well" />
     <MESSAGE value="Server connects with QuickBase" />
     <MESSAGE value="assistant works with mobile!" />
-    <option name="LAST_COMMIT_MESSAGE" value="assistant works with mobile!" />
+    <MESSAGE value="Entities and entity inheritance done!" />
+    <option name="LAST_COMMIT_MESSAGE" value="Entities and entity inheritance done!" />
   </component>
   <component name="WindowStateProjectService">
     <state x="184" y="112" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1604045731323">
@@ -171,12 +176,12 @@
     </state>
     <state x="221" y="89" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1603777750220" />
     <state x="1994" y="135" key="SettingsEditor/1680.23.2048.1129/0.23.1680.975@1680.23.2048.1129" timestamp="1603807579735" />
-    <state x="320" y="166" key="Vcs.Push.Dialog.v2" timestamp="1604252037710">
-      <screen x="0" y="0" width="1440" height="900" />
+    <state x="2135" y="231" key="Vcs.Push.Dialog.v2" timestamp="1604306726773">
+      <screen x="1680" y="23" width="2048" height="1129" />
     </state>
     <state x="320" y="166" key="Vcs.Push.Dialog.v2/0.0.1440.900@0.0.1440.900" timestamp="1604252037710" />
     <state x="320" y="175" key="Vcs.Push.Dialog.v2/0.23.1440.825@0.23.1440.825" timestamp="1603575011839" />
-    <state x="2135" y="231" key="Vcs.Push.Dialog.v2/1680.23.2048.1129/0.23.1680.975@1680.23.2048.1129" timestamp="1603807613354" />
+    <state x="2135" y="231" key="Vcs.Push.Dialog.v2/1680.23.2048.1129/0.23.1680.975@1680.23.2048.1129" timestamp="1604306726773" />
     <state x="726" y="356" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1603919517949">
       <screen x="0" y="23" width="1440" height="825" />
     </state>
