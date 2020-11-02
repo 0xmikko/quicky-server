@@ -4,10 +4,11 @@
 import { Inject, Service } from "typedi";
 import { AppRepository } from "../repository/appRepository";
 import { UserRepository } from "../repository/userRepository";
-import { SocketPusher, SocketPusherDelegate } from "../core/socket";
+import { SocketPusherDelegate } from "../core/socket";
 import { App } from "../core/app";
 import { QuickbaseRepository } from "../repository/quickbaseRepository";
-import { AppEntity } from "../core/appEntity";
+import { ContactEntity } from "../entities/contactEntity";
+import { SettingsEntity } from "../entities/settingsEntity";
 
 @Service()
 export class AppService extends SocketPusherDelegate {
@@ -85,14 +86,19 @@ export class AppService extends SocketPusherDelegate {
     let app = await this._repository.findByUser(userId);
     if (app === null) throw new Error("App not found");
 
-    const entity = new AppEntity();
-    entity.icon = "ios-home";
-    entity.name = entityName
-    entity.template = "Contact";
+    // For new applications add new Setting entity
+    if (app.entities.length === 0) {
+      const settingsEntity = new SettingsEntity();
+      app.entities.push(settingsEntity);
+    }
 
-    console.log(app)
+    const entity = new ContactEntity();
+    entity.name = entityName;
+    entity.order = app.entities.length;
+
+    console.log(app);
     app.entities.push(entity);
-    console.log(app)
+    console.log(app);
     await this._repository.save(app);
     this._pusher.pushUpdateQueue({
       userId,

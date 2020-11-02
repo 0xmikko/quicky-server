@@ -19,29 +19,14 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18652e20-c138-4c79-99d8-1e1911e175de" name="Default Changelist" comment="Server connects with QuickBase">
-      <change afterPath="$PROJECT_DIR$/src/core/appEntity.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/customer.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/field.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/core/table.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payload/fieldPayload.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payload/tablePayload.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/repository/quickbaseRepository.ts" afterDir="false" />
+    <list default="true" id="18652e20-c138-4c79-99d8-1e1911e175de" name="Default Changelist" comment="assistant works with mobile!">
+      <change afterPath="$PROJECT_DIR$/src/entities/contactEntity.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/entities/settingsEntity.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controllers/appController.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/controllers/appController.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controllers/authController.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/controllers/authController.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controllers/proflieController.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/controllers/proflieController.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/app.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/tables.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/helpers/quickbase.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/payload/userPayload.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/payload/userPayload.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/repository/appRepository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/repository/appRepository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/appEntity.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/appEntity.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/embedding.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/field.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/field.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/appService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/appService.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/assistantService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/assistantService.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/authService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/authService.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +54,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/core" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/entities" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="yarn" />
@@ -79,15 +64,16 @@
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/repository" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/entities" />
       <recent name="$PROJECT_DIR$/src/core" />
       <recent name="$PROJECT_DIR$/src/payload" />
       <recent name="$PROJECT_DIR$/src/controllers" />
       <recent name="$PROJECT_DIR$/src/repository" />
-      <recent name="$PROJECT_DIR$/src/services" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/entities" />
+      <recent name="$PROJECT_DIR$/src/repository" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -110,7 +96,9 @@
       <workItem from="1603953212503" duration="11287000" />
       <workItem from="1604082292909" duration="7000" />
       <workItem from="1604085932851" duration="9331000" />
-      <workItem from="1604139120888" duration="11727000" />
+      <workItem from="1604139120888" duration="12438000" />
+      <workItem from="1604300552612" duration="60000" />
+      <workItem from="1604301413229" duration="4395000" />
     </task>
     <task id="LOCAL-00001" summary="Server skeleton done">
       <created>1603807610801</created>
@@ -133,7 +121,14 @@
       <option name="project" value="LOCAL" />
       <updated>1603954842878</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="assistant works with mobile!">
+      <created>1604252034262</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1604252034262</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -155,17 +150,18 @@
     <MESSAGE value="Server skeleton done" />
     <MESSAGE value="Chat &amp; assistant skeleton works pretty well" />
     <MESSAGE value="Server connects with QuickBase" />
-    <option name="LAST_COMMIT_MESSAGE" value="Server connects with QuickBase" />
+    <MESSAGE value="assistant works with mobile!" />
+    <option name="LAST_COMMIT_MESSAGE" value="assistant works with mobile!" />
   </component>
   <component name="WindowStateProjectService">
     <state x="184" y="112" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1604045731323">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="184" y="112" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1440.900@0.0.1440.900" timestamp="1604045731323" />
-    <state x="3029" y="310" key="#com.intellij.ide.util.MemberChooser" timestamp="1603881000179">
+    <state x="3029" y="310" key="#com.intellij.ide.util.MemberChooser" timestamp="1604303177224">
       <screen x="1680" y="23" width="2048" height="1129" />
     </state>
-    <state x="3029" y="310" key="#com.intellij.ide.util.MemberChooser/1680.23.2048.1129/0.23.1680.975@1680.23.2048.1129" timestamp="1603881000179" />
+    <state x="3029" y="310" key="#com.intellij.ide.util.MemberChooser/1680.23.2048.1129/0.23.1680.975@1680.23.2048.1129" timestamp="1604303177224" />
     <state x="2967" y="469" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1603807584410">
       <screen x="1680" y="23" width="2048" height="1129" />
     </state>
@@ -175,19 +171,20 @@
     </state>
     <state x="221" y="89" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1603777750220" />
     <state x="1994" y="135" key="SettingsEditor/1680.23.2048.1129/0.23.1680.975@1680.23.2048.1129" timestamp="1603807579735" />
-    <state x="320" y="166" key="Vcs.Push.Dialog.v2" timestamp="1603954846811">
+    <state x="320" y="166" key="Vcs.Push.Dialog.v2" timestamp="1604252037710">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state x="320" y="166" key="Vcs.Push.Dialog.v2/0.0.1440.900@0.0.1440.900" timestamp="1603954846811" />
+    <state x="320" y="166" key="Vcs.Push.Dialog.v2/0.0.1440.900@0.0.1440.900" timestamp="1604252037710" />
     <state x="320" y="175" key="Vcs.Push.Dialog.v2/0.23.1440.825@0.23.1440.825" timestamp="1603575011839" />
     <state x="2135" y="231" key="Vcs.Push.Dialog.v2/1680.23.2048.1129/0.23.1680.975@1680.23.2048.1129" timestamp="1603807613354" />
     <state x="726" y="356" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1603919517949">
       <screen x="0" y="23" width="1440" height="825" />
     </state>
     <state x="726" y="356" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.1440.825@0.23.1440.825" timestamp="1603919517949" />
-    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup" timestamp="1603797227671">
-      <screen x="0" y="0" width="1440" height="900" />
+    <state x="2228" y="269" width="953" height="849" key="search.everywhere.popup" timestamp="1604303018906">
+      <screen x="1680" y="23" width="2048" height="1129" />
     </state>
     <state x="385" y="196" width="670" height="676" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1603797227671" />
+    <state x="2228" y="269" width="953" height="849" key="search.everywhere.popup/1680.23.2048.1129/0.23.1680.975@1680.23.2048.1129" timestamp="1604303018906" />
   </component>
 </project>

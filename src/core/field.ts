@@ -2,15 +2,7 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import { prop as Property } from "@typegoose/typegoose/lib/prop";
-import { Embedding } from "./embedding";
-import {
-  IsDate,
-  IsDateString,
-  IsNotEmpty,
-  IsNumber,
-  IsString
-} from "class-validator";
+import {prop as Property} from "@typegoose/typegoose/lib/prop";
 
 export type FieldType =
   | "text"
