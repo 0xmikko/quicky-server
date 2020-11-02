@@ -9,6 +9,8 @@ import { App } from "../core/app";
 import { QuickbaseRepository } from "../repository/quickbaseRepository";
 import { ContactEntity } from "../entities/contactEntity";
 import { SettingsEntity } from "../entities/settingsEntity";
+import { AppEntity, EntityType } from "../core/appEntity";
+import { ProjectEntity } from "../entities/projectEntity";
 
 @Service()
 export class AppService extends SocketPusherDelegate {
@@ -82,7 +84,7 @@ export class AppService extends SocketPusherDelegate {
     });
   }
 
-  async addEntity(userId: string, entityName: string, entityType: string) {
+  async addEntity(userId: string, entityName: string, entityType: EntityType) {
     let app = await this._repository.findByUser(userId);
     if (app === null) throw new Error("App not found");
 
@@ -92,11 +94,24 @@ export class AppService extends SocketPusherDelegate {
       app.entities.push(settingsEntity);
     }
 
-    const entity = new ContactEntity();
-    entity.name = entityName;
-    entity.order = app.entities.length;
+    let entity: AppEntity;
+
+    switch (entityType) {
+      case "Contact":
+        entity = new ContactEntity();
+        entity.name = entityName;
+
+        break;
+      case "Project":
+        entity = new ProjectEntity();
+        entity.name = entityName;
+        break;
+      default:
+        throw new Error("Unknown entity");
+    }
 
     console.log(app);
+    entity.order = app.entities.length;
     app.entities.push(entity);
     console.log(app);
     await this._repository.save(app);

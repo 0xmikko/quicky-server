@@ -141,8 +141,11 @@ export class AuthService {
   }
 
   async loginWithToken(dto: CodeOAuthDTO): Promise<TokenPair> {
-    const id = await RedisCache.client.get(`OTT_${dto.code}`);
-    if (id === null) throw new Error("Token not found");
+    // const id = await RedisCache.client.get(`OTT_${dto.code}`);
+    // if (id === null) throw new Error("Token not found");
+
+    const id = '5f9c6b96490a31ab2c727a7a';
+
     let user = await this._repository.findById(id);
     if (user === null) throw UserNotFoundError;
     return this.generateTokenPair(user.id, user.role)

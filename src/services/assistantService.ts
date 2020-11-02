@@ -47,11 +47,22 @@ export class AssistantService {
           );
           break;
         case "entity":
-          await this._appService.addEntity(
-            message.owner.toString(),
-            cmd[1],
-            "Contact"
-          );
+          switch (cmd[1].toLowerCase()) {
+            default:
+            case "contact":
+              await this._appService.addEntity(
+                message.owner.toString(),
+                cmd[1],
+                "Contact"
+              );
+            case "project":
+              await this._appService.addEntity(
+                message.owner.toString(),
+                cmd[1],
+                "Project"
+              );
+          }
+
           break;
       }
     }
