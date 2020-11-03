@@ -26,7 +26,7 @@ export class AppService extends SocketPusherDelegate {
   async connectApp(userId: string, url: string) {
     const qbToken = await this._userRepository.getQBTokenElseThrow(userId);
     console.log(qbToken);
-    const appId = "bqxwp8kss";
+    const appId = "bqyg6th9t";
     const hostName = "hackathon20-mlazarev.quickbase.com";
 
     // Getting app
@@ -100,7 +100,6 @@ export class AppService extends SocketPusherDelegate {
       case "Contact":
         entity = new ContactEntity();
         entity.name = entityName;
-
         break;
       case "Project":
         entity = new ProjectEntity();
@@ -120,5 +119,56 @@ export class AppService extends SocketPusherDelegate {
       event: "app:updateDetails",
       handler: async () => app
     });
+  }
+
+  async deployApp(userId: string) {
+    let app = await this._repository.findByUser(userId);
+    if (app === null) throw new Error("App not found");
+
+    const updatedEntities: AppEntity[] = [];
+    for (let entity of app.entities) {
+      if (entity.type !== 'Contact') continue;
+      const updEntity = await this.deployEntity(userId, entity);
+      console.log(updEntity)
+      updatedEntities.push(updEntity);
+    }
+    app.entities = updatedEntities;
+    await this._repository.save(app);
+  }
+
+  async deployEntity(userId: string, entity: AppEntity) {
+    const qbToken = await this._userRepository.getQBTokenElseThrow(userId);
+    console.log(qbToken);
+    const appId = "bqyg6th9t";
+    const hostName = "hackathon20-mlazarev.quickbase.com";
+
+    const tableId = await this._qbRepository.createTableFromEntity(
+      appId,
+      hostName,
+      qbToken,
+      entity
+    );
+
+    entity.tableId = tableId;
+    console.log("NEW TABLE WAS CREATED", tableId);
+
+    if (entity.dataMapper === null || entity.dataMapper === undefined)
+      return entity;
+
+    // Adding fields
+    for (let e of Object.entries(entity.dataMapper)) {
+      const key = e[0];
+      const field = e[1];
+      const fieldId = await this._qbRepository.createFieldAtTable(
+        tableId,
+        hostName,
+        qbToken,
+        field
+      );
+      field.id = fieldId;
+      entity.dataMapper[key] = field;
+    }
+
+    return entity;
   }
 }

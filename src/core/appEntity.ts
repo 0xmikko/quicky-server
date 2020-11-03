@@ -4,7 +4,7 @@
 import { prop as Property } from "@typegoose/typegoose/lib/prop";
 import { Field } from "./field";
 
-export type EntityType = "Contact" | "Task" | "Project" | "Settings";
+export type EntityType = "Contact" | "Task" | "Project" | "Setting";
 
 export interface IAppEntity {
   deploy(): Promise<void>;
@@ -18,7 +18,7 @@ export abstract class AppEntity implements IAppEntity {
   icon: string;
 
   @Property()
-  template: EntityType;
+  type: EntityType;
 
   @Property()
   order: number
@@ -28,6 +28,12 @@ export abstract class AppEntity implements IAppEntity {
 
   @Property()
   tableId: string;
+
+  @Property()
+  description: string;
+
+  @Property()
+  pluralRecordName: string;
 
   @Property()
   dataMapper: Record<string, Field>;

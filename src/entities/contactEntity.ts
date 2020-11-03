@@ -3,6 +3,7 @@
  */
 import { prop as Property } from "@typegoose/typegoose/lib/prop";
 import { AppEntity } from "../core/appEntity";
+import {Field, FieldType} from "../core/field";
 
 export class ContactEntity extends AppEntity {
   @Property()
@@ -26,7 +27,15 @@ export class ContactEntity extends AppEntity {
   constructor() {
     super();
     this.icon = "ios-person-circle";
-    this.template = "Contact";
+    this.type = "Contact";
+    this.description = "Contains contact information";
+    this.pluralRecordName = 'contacts'
+
+    this.dataMapper = {
+      firstName: new Field("First name", "text"),
+      lastName:new Field("Last name", "text"),
+      email: new Field("Email", "text"),
+    }
   }
 
   deploy(): Promise<void> {

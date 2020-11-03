@@ -1,15 +1,16 @@
 /*
  * Copyright (c) 2020. Mikhail Lazarev
  */
-import { prop as Property } from "@typegoose/typegoose/lib/prop";
-import { AppEntity } from "../core/appEntity";
+import {AppEntity} from "../core/appEntity";
 
 export class ProjectEntity extends AppEntity {
 
   constructor() {
     super();
     this.icon = "ios-briefcase";
-    this.template = "Project";
+    this.type = "Project";
+    this.description = "Contains company projects";
+    this.pluralRecordName = 'projects'
   }
 
   deploy(): Promise<void> {

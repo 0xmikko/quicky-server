@@ -2,7 +2,7 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import {prop as Property} from "@typegoose/typegoose/lib/prop";
+import { prop as Property } from "@typegoose/typegoose/lib/prop";
 
 export type FieldType =
   | "text"
@@ -17,38 +17,24 @@ export type FieldType =
   | "currency";
 
 export class Field {
-  _id: string;
+  constructor(label: string, fieldType: FieldType) {
+    this.label = label;
+    this.fieldType = fieldType;
+  }
 
-  @Property({ unique: true, index: true })
-  id: string;
+  id?: string;
 
-  @Property()
   label: string;
 
-  @Property()
   fieldType: FieldType;
 
-  @Property()
-  noWrap: boolean;
+  noWrap: boolean = true;
 
-  @Property()
-  bold: boolean;
+  bold: boolean = true;
 
-  @Property()
-  required: boolean;
+  appearsByDefault: boolean = true;
 
-  @Property()
-  appearsByDefault: boolean;
+  addToForms: boolean = true;
 
-  @Property()
-  findEnabled: boolean;
-
-  @Property()
-  allowNewChoices: boolean;
-
-  @Property()
-  sortAsGiven: boolean;
-
-  @Property()
-  carryChoices: boolean;
+  findEnabled: boolean = true;
 }

@@ -55,14 +55,18 @@ export class AssistantService {
                 cmd[1],
                 "Contact"
               );
+              break;
             case "project":
               await this._appService.addEntity(
                 message.owner.toString(),
                 cmd[1],
                 "Project"
               );
+              break;
           }
-
+          break;
+        case "deploy":
+          await this._appService.deployApp(message.owner.toString());
           break;
       }
     }

@@ -9,7 +9,7 @@ export class SettingsEntity extends AppEntity {
         super();
         this.icon = 'ios-cog';
         this.name = "Settings";
-        this.template = "Settings";
+        this.type = "Setting";
         this.order = 1000;
     }
 
