@@ -6,7 +6,7 @@ import { Service } from "typedi";
 import { MongoRepository } from "./mongoRepository";
 import { App } from "../core/app";
 import { transformAndValidate } from "class-transformer-validator";
-import { AppPayload } from "../payload/appPayload";
+import {AppPayload, QBCredentials} from "../payload/appPayload";
 import { FieldPayload } from "../payload/fieldPayload";
 import { TablePayload } from "../payload/tablePayload";
 import { AppEntity } from "../core/appEntity";
@@ -18,8 +18,8 @@ export class QuickbaseRepository extends MongoRepository<App> {
     super(App);
   }
 
-  async getApp(appId: string, hostname: string, token: string): Promise<App> {
-    const appDataRaw = await this.get(`/apps/${appId}`, hostname, token);
+  async getApp(appId: string, qbCredentials: QBCredentials): Promise<App> {
+    const appDataRaw = await this.get(`/apps/${appId}`, qbCredentials);
 
     const app = (await transformAndValidate(
       AppPayload,
@@ -32,13 +32,11 @@ export class QuickbaseRepository extends MongoRepository<App> {
 
   async getTables(
     appId: string,
-    hostname: string,
-    token: string
+    qbCredentials: QBCredentials,
   ): Promise<TablePayload[]> {
     const tablesDataRaw = await this.get(
       `/tables?appId=${appId}`,
-      hostname,
-      token
+      qbCredentials
     );
     const tables = (await transformAndValidate(
       TablePayload,
@@ -51,13 +49,11 @@ export class QuickbaseRepository extends MongoRepository<App> {
 
   async getFields(
     tableId: string,
-    hostname: string,
-    token: string
+    qbCredentials: QBCredentials
   ): Promise<FieldPayload[]> {
     const fieldsDataRaw = await this.get(
       `/fields?tableId=${tableId}`,
-      hostname,
-      token
+      qbCredentials
     );
 
     return (await transformAndValidate(
@@ -73,14 +69,12 @@ export class QuickbaseRepository extends MongoRepository<App> {
 
   async createTableFromEntity(
     appId: string,
-    hostname: string,
-    token: string,
-    entity: AppEntity
+    entity: AppEntity,
+    qbCredentials: QBCredentials
   ) : Promise<string> {
     const tablesDataRaw = await this.post(
       `/tables?appId=${appId}`,
-      hostname,
-      token,
+      qbCredentials,
       {
         name: entity.name,
         description: entity.description,
@@ -98,14 +92,12 @@ export class QuickbaseRepository extends MongoRepository<App> {
 
   async createFieldAtTable(
       tableId: string,
-      hostname: string,
-      token: string,
       field: Field,
+      qbCredentials: QBCredentials
   ) : Promise<string> {
     const fieldDataRaw = await this.post(
         `/fields?tableId=${tableId}`,
-        hostname,
-        token,
+        qbCredentials,
         FieldPayload.fromField(field),
     );
 
@@ -119,27 +111,25 @@ export class QuickbaseRepository extends MongoRepository<App> {
 
   async get(
     path: string,
-    hostname: string,
-    token: string
+    qbCredentials: QBCredentials
   ): Promise<AxiosResponse<any>> {
     return axios.get(`https://api.quickbase.com/v1${path}`, {
       headers: {
-        "QB-Realm-Hostname": hostname,
-        Authorization: `QB-USER-TOKEN ${token}`
+        "QB-Realm-Hostname": qbCredentials.hostName,
+        Authorization: `QB-USER-TOKEN ${qbCredentials.token}`
       }
     });
   }
 
   async post(
     path: string,
-    hostname: string,
-    token: string,
+    qbCredentials: QBCredentials,
     body: any
   ): Promise<AxiosResponse<any>> {
     return axios.post(`https://api.quickbase.com/v1${path}`, body, {
       headers: {
-        "QB-Realm-Hostname": hostname,
-        Authorization: `QB-USER-TOKEN ${token}`
+        "QB-Realm-Hostname": qbCredentials.hostName,
+        Authorization: `QB-USER-TOKEN ${qbCredentials.token}`
       }
     });
   }

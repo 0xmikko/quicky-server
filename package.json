@@ -11,6 +11,7 @@
     "start-fo": "tsc &&  && ./node_modules/.bin/forever --minUptime 10000 --spinSleepTime 1000 -v  -c  \"./node_modules/.bin/ts-node -r dotenv/config --project ./tsconfig.json\"  ./src/index.ts "
   },
   "dependencies": {
+    "@google-cloud/dialogflow-cx": "^1.1.0",
     "@sentry/node": "^5.27.1",
     "@typegoose/typegoose": "^7.4.1",
     "@types/axios": "^0.14.0",
@@ -45,6 +46,7 @@
     "moment": "^2.29.1",
     "mongoose": "^5.10.10",
     "morgan": "^1.10.0",
+    "ngrok": "^3.3.0",
     "node-telegram-bot-api": "^0.50.0",
     "nodemon": "^2.0.6",
     "reflect-metadata": "^0.1.13",

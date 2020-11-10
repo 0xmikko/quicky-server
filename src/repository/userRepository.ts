@@ -5,6 +5,7 @@
 import { User } from "../core/user";
 import { Service } from "typedi";
 import { MongoRepository } from "./mongoRepository";
+import { QBCredentials } from "../payload/appPayload";
 
 @Service()
 export class UserRepository extends MongoRepository<User> {
@@ -16,9 +17,14 @@ export class UserRepository extends MongoRepository<User> {
     return await this._model.findOne({ email }).exec();
   }
 
-  async getQBTokenElseThrow(id: string): Promise<string> {
+  async getQBTokenElseThrow(id: string): Promise<QBCredentials> {
     const user = await this.findById(id);
     if (user === null || user === undefined) throw new Error("User not found");
-    return user.getQBTokenElseThrow();
+    if (user.hostName === undefined)
+      throw new Error("Quickbase host name isn't set");
+    return {
+      hostName: user.hostName,
+      token: user.getQBTokenElseThrow()
+    };
   }
 }

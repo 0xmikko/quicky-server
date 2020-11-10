@@ -11,6 +11,8 @@ import { ContactEntity } from "../entities/contactEntity";
 import { SettingsEntity } from "../entities/settingsEntity";
 import { AppEntity, EntityType } from "../core/appEntity";
 import { ProjectEntity } from "../entities/projectEntity";
+import { Field } from "../core/field";
+import { QBCredentials } from "../payload/appPayload";
 
 @Service()
 export class AppService extends SocketPusherDelegate {
@@ -24,27 +26,28 @@ export class AppService extends SocketPusherDelegate {
   private _userRepository: UserRepository;
 
   async connectApp(userId: string, url: string) {
-    const qbToken = await this._userRepository.getQBTokenElseThrow(userId);
-    console.log(qbToken);
+    const qbCredentials = await this._userRepository.getQBTokenElseThrow(
+      userId
+    );
+
     const appId = "bqyg6th9t";
     const hostName = "hackathon20-mlazarev.quickbase.com";
 
     // Getting app
-    const app = await this._qbRepository.getApp(appId, hostName, qbToken);
+    const app = await this._qbRepository.getApp(appId, qbCredentials);
     app.qbHostName = hostName;
 
     // Creating / updating app in database
     await this._repository.upsert(app);
 
-    const tables = await this._qbRepository.getTables(appId, hostName, qbToken);
+    const tables = await this._qbRepository.getTables(appId, qbCredentials);
 
     console.log(tables);
 
     for (let table of tables) {
       const fields = await this._qbRepository.getFields(
         table.id,
-        hostName,
-        qbToken
+        qbCredentials
       );
       console.log(fields);
     }
@@ -125,28 +128,39 @@ export class AppService extends SocketPusherDelegate {
     let app = await this._repository.findByUser(userId);
     if (app === null) throw new Error("App not found");
 
+    const qbCredentials = await this._userRepository.getQBTokenElseThrow(
+      userId
+    );
+
+    if (app.qbAppId === undefined) throw new Error("QuickBase app id is not set!")
+    console.log("QQB", app.qbAppId);
+
     const updatedEntities: AppEntity[] = [];
     for (let entity of app.entities) {
-      if (entity.type !== 'Contact') continue;
-      const updEntity = await this.deployEntity(userId, entity);
-      console.log(updEntity)
+      if (entity.type !== "Contact") continue;
+      let updEntity = await this.deployEntity(
+        qbCredentials,
+        app.qbAppId,
+        entity
+      );
+      updEntity = await this.findIdField(qbCredentials, updEntity);
+      updEntity.isDeployed = true;
       updatedEntities.push(updEntity);
     }
     app.entities = updatedEntities;
-    await this._repository.save(app);
+
+    await this._repository.upsert(app);
   }
 
-  async deployEntity(userId: string, entity: AppEntity) {
-    const qbToken = await this._userRepository.getQBTokenElseThrow(userId);
-    console.log(qbToken);
-    const appId = "bqyg6th9t";
-    const hostName = "hackathon20-mlazarev.quickbase.com";
-
+  async deployEntity(
+    qbCredentials: QBCredentials,
+    appId: string,
+    entity: AppEntity
+  ) {
     const tableId = await this._qbRepository.createTableFromEntity(
       appId,
-      hostName,
-      qbToken,
-      entity
+      entity,
+      qbCredentials
     );
 
     entity.tableId = tableId;
@@ -159,16 +173,34 @@ export class AppService extends SocketPusherDelegate {
     for (let e of Object.entries(entity.dataMapper)) {
       const key = e[0];
       const field = e[1];
+      if (field.fieldType === "recordid") continue;
       const fieldId = await this._qbRepository.createFieldAtTable(
         tableId,
-        hostName,
-        qbToken,
-        field
+        field,
+        qbCredentials
       );
       field.id = fieldId;
       entity.dataMapper[key] = field;
     }
 
+    return entity;
+  }
+
+  async findIdField(
+    qbCredentials: QBCredentials,
+    entity: AppEntity
+  ): Promise<AppEntity> {
+    const fields = await this._qbRepository.getFields(
+      entity.tableId,
+      qbCredentials
+    );
+    for (let field of fields) {
+      console.log("Fie;d", field);
+      if (field.fieldType === "recordid") {
+        entity.dataMapper["id"] = new Field("id", "recordid");
+        entity.dataMapper["id"].id = field.id;
+      }
+    }
     return entity;
   }
 }

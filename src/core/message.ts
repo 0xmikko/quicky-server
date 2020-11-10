@@ -8,6 +8,7 @@ import {modelOptions, prop as Property, Ref} from "@typegoose/typegoose";
 import { ObjectId } from "mongodb";
 import { Document } from "mongoose";
 import {TimeStamps} from "@typegoose/typegoose/lib/defaultClasses";
+import {QuickReplies} from "./quickReply";
 
 @modelOptions({
   schemaOptions: {
@@ -19,14 +20,15 @@ import {TimeStamps} from "@typegoose/typegoose/lib/defaultClasses";
 export class Message extends TimeStamps{
   _id: string;
 
-  @Field()
   @Property()
   text: string;
 
   @Property()
+  quickReplies?: QuickReplies
+
+  @Property()
   pending: boolean;
 
-  @Field(type => User)
   @Property({
     ref: 'User',
     required: true,
@@ -35,7 +37,6 @@ export class Message extends TimeStamps{
   })
   user: Ref<User>;
 
-  @Field(type => User)
   @Property({
     ref: 'User',
     required: true,

@@ -5,6 +5,11 @@
 import { IsNotEmpty } from "class-validator";
 import {App} from "../core/app";
 
+export interface QBCredentials {
+    hostName: string,
+    token: string
+}
+
 export class AppPayload {
   @IsNotEmpty()
   id: string;

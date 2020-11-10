@@ -56,6 +56,9 @@ export class User extends TimeStamps {
   @Property()
   _qbToken: string | null;
 
+  @Property()
+  hostName?: string
+
   @Property({
     ref: "Message",
     required: true,

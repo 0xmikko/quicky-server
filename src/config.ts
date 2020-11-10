@@ -41,6 +41,18 @@ export class Config {
   @IsNotEmpty()
   static tgChatId: string;
 
+  @IsNotEmpty()
+  static GDFProjectId: string;
+
+  @IsNotEmpty()
+  static GDFLocation: string;
+
+  @IsNotEmpty()
+  static GDFAgentId: string;
+
+  @IsNotEmpty()
+  static GDFLanguageCode: string;
+
   static init() {
     Config.port = parseInt(process.env.PORT || "4000");
     Config.database_url = process.env.DATABASE_URL || "";
@@ -54,6 +66,10 @@ export class Config {
     Config.sentryDSN = process.env.SENTRY_DSN || "";
     Config.tgBotId = process.env.TG_BOT_ID || "";
     Config.tgChatId = process.env.TG_CHAT_ID || "";
+    Config.GDFProjectId = process.env.GDF_PROJECT_ID || "";
+    Config.GDFLocation = process.env.GDF_LOCATION || "";
+    Config.GDFAgentId = process.env.GDF_AGENT_ID || "";
+    Config.GDFLanguageCode = process.env.GDF_LANGIAGE_CODE || "";
   }
 
   static getGCP() {
