@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon",
+    "build": "tsc",
     "start-pm2": "pm2 pm2.config.js --env production",
     "start": "pm2-runtime pm2.config.js --env production",
     "start-fo": "tsc &&  && ./node_modules/.bin/forever --minUptime 10000 --spinSleepTime 1000 -v  -c  \"./node_modules/.bin/ts-node -r dotenv/config --project ./tsconfig.json\"  ./src/index.ts "
@@ -53,7 +54,6 @@
     "socket.io": "^2.3.0",
     "socketio-jwt": "^4.6.2",
     "ts-node": "^9.0.0",
-    "type-graphql": "^1.1.0",
     "typedi": "^0.8.0",
     "typescript": "^4.0.3",
     "uuid": "^8.3.1"
