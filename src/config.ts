@@ -71,7 +71,7 @@ export class Config {
     Config.GDFProjectId = process.env.GDF_PROJECT_ID || "";
     Config.GDFLocation = process.env.GDF_LOCATION || "";
     Config.GDFAgentId = process.env.GDF_AGENT_ID || "";
-    Config.GDFLanguageCode = process.env.GDF_LANGIAGE_CODE || "";
+    Config.GDFLanguageCode = process.env.GDF_LANGUAGE_CODE || "";
   }
 
   static getGCP() {
@@ -85,7 +85,6 @@ export class Config {
 
     const filename = tempDir + "/google.json";
     fs.writeFileSync(filename, gcp || "");
-    console.log(fs.readdirSync(filename))
     process.env.GOOGLE_APPLICATION_CREDENTIALS = filename;
   }
 
