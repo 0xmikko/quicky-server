@@ -13,6 +13,7 @@ import * as v3beta1 from "@google-cloud/dialogflow-cx/build/src/v3beta1";
 import Config from "../config";
 import {DialogFlowParams} from "../core/dialogFlow";
 import {QuickReplyValue} from "../core/quickReply";
+// @ts-ignore
 import QRCode from 'qrcode'
 
 @Service()

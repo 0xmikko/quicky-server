@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020. Mikhail Lazarev
  */
-require("dotenv").config()
+require("dotenv").config();
 import fs from "fs";
 import { validate, IsNotEmpty } from "class-validator";
 
@@ -61,8 +61,10 @@ export class Config {
     Config.picturesImagesBucket = process.env.GCP_PICUTRES_BUCKET || "";
     Config.authGoogleClientID = process.env.AUTH_GOOGLE_CLIENT_ID || "";
     Config.authGoogleClientSecret = process.env.AUTH_GOOGLE_SECRET || "";
-    Config.authGoogleDevRedirectUrl = process.env.AUTH_GOOGLE_DEV_REDIRECT_URL|| "";
-    Config.authGoogleProdRedirectUrl = process.env.AUTH_GOOGLE_PROD_REDIRECT_URL|| "";
+    Config.authGoogleDevRedirectUrl =
+      process.env.AUTH_GOOGLE_DEV_REDIRECT_URL || "";
+    Config.authGoogleProdRedirectUrl =
+      process.env.AUTH_GOOGLE_PROD_REDIRECT_URL || "";
     Config.sentryDSN = process.env.SENTRY_DSN || "";
     Config.tgBotId = process.env.TG_BOT_ID || "";
     Config.tgChatId = process.env.TG_CHAT_ID || "";
@@ -74,15 +76,21 @@ export class Config {
 
   static getGCP() {
     const gcp = process.env.GOOGLE_CP;
-    const filename = __dirname + "/config/google.json";
+    const tempdir = __dirname + "/tmp";
+
+    if (!fs.existsSync(tempdir)) {
+      fs.mkdirSync(tempdir);
+    }
+
+    const filename = tempdir + "/google.json";
     fs.writeFileSync(filename, gcp || "");
     process.env.GOOGLE_APPLICATION_CREDENTIALS = filename;
   }
 
   static async validate(): Promise<void> {
-    console.log("Loading configuration...")
+    console.log("Loading configuration...");
     Config.init();
-    console.log(Config)
+    console.log(Config);
     const errors = await validate(Config);
     if (errors.length > 0)
       throw new Error(`Configuration problems: ${errors.join("\n")}`);
