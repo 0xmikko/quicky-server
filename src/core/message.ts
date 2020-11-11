@@ -29,6 +29,15 @@ export class Message extends TimeStamps{
   @Property()
   pending: boolean;
 
+  @Property()
+  image?: string
+
+  @Property()
+  video?: string
+
+  @Property()
+  audio?: string
+
   @Property({
     ref: 'User',
     required: true,

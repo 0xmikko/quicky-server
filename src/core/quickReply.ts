@@ -9,7 +9,7 @@ export interface QuickReplyValue {
 }
 
 export interface QuickReplies {
-  type: "radio";
+  type: "radio" | 'checkbox';
   keepIt: boolean;
   values: Array<QuickReplyValue>
 

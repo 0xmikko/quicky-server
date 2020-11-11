@@ -13,6 +13,7 @@ import * as v3beta1 from "@google-cloud/dialogflow-cx/build/src/v3beta1";
 import Config from "../config";
 import {DialogFlowParams} from "../core/dialogFlow";
 import {QuickReplyValue} from "../core/quickReply";
+import QRCode from 'qrcode'
 
 @Service()
 export class AssistantService {
@@ -39,6 +40,7 @@ export class AssistantService {
     assistant._id = this.ASSISTANT_ID;
     assistant.name = "Quicky";
     assistant.role = "Assistant";
+    assistant.avatar_url = 'https://www.docusign.com/sites/default/files/styles/logo_thumbnail__1x__155x_95_/public/solution_showcase_logo/quickbaselogo.png?itok=lOrKXLun&timestamp=1591727466';
 
     await this._userRepository.upsert(assistant);
   }
@@ -77,14 +79,13 @@ export class AssistantService {
           answer.text += message.text.text;
         }
       }
-      console.log(response.queryResult.parameters?.fields)
-      const { quickReplies } = response.queryResult.parameters?.fields as DialogFlowParams;
 
-      console.log(quickReplies)
-
-      quickReplies?.stringValue.split(",").forEach(
-          reply => quickRepliesValues.push({title: reply, value: reply})
-      )
+      if (response.queryResult.parameters?.fields !== undefined) {
+        const { quickReplies } = response.queryResult.parameters?.fields as DialogFlowParams;
+        quickReplies?.stringValue.split(",").forEach(
+            reply => quickRepliesValues.push({title: reply, value: reply})
+        )
+      }
       if (response.queryResult?.match?.intent) {
         console.log(
           `Matched Intent: ${response.queryResult?.match?.intent.displayName}`
@@ -93,16 +94,20 @@ export class AssistantService {
       console.log(
         `Current Page: ${response.queryResult.currentPage?.displayName}`
       );
-
     }
 
     if (quickRepliesValues.length >0 ) {
       answer.quickReplies = {
-        type: 'radio',
-        keepIt: true,
+        type: 'checkbox',
+        keepIt: false,
         values: quickRepliesValues,
       }
     }
+
+
+    const qrCode = await QRCode.toDataURL("https://google.com", {margin: 10})
+
+    // answer.image = qrCode //'https://www.docusign.com/sites/default/files/styles/logo_thumbnail__1x__155x_95_/public/solution_showcase_logo/quickbaselogo.png'
     await this._chatService.sendMessage(message.owner.toString(), answer);
   }
   //
