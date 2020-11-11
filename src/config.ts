@@ -78,8 +78,9 @@ export class Config {
     const gcp = process.env.GOOGLE_CP;
     const tempDir = __dirname + "/tmp";
 
+
     if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
+      fs.mkdirSync(tempDir, { mode: 0o0744, recursive: true});
     }
 
     const filename = tempDir + "/google.json";
