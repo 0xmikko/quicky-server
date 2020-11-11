@@ -2,17 +2,10 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import {
-  getModelForClass,
-  modelOptions,
-  pre,
-  prop as Property,
-  Ref
-} from "@typegoose/typegoose";
-import { ObjectId } from "mongodb";
-import { Message } from "./message";
-import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses";
-import { EncryptHelper } from "../helpers/encrypt";
+import {getModelForClass, modelOptions, pre, prop as Property, Ref} from "@typegoose/typegoose";
+import {Message} from "./message";
+import {TimeStamps} from "@typegoose/typegoose/lib/defaultClasses";
+import {EncryptHelper} from "../helpers/encrypt";
 
 export interface UserID {
   id: string;

@@ -2,11 +2,8 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import { User } from "./user";
-import { Field, ID, ObjectType } from "type-graphql";
+import {User} from "./user";
 import {modelOptions, prop as Property, Ref} from "@typegoose/typegoose";
-import { ObjectId } from "mongodb";
-import { Document } from "mongoose";
 import {TimeStamps} from "@typegoose/typegoose/lib/defaultClasses";
 import {QuickReplies} from "./quickReply";
 
@@ -16,7 +13,6 @@ import {QuickReplies} from "./quickReply";
     toObject: { virtuals: true }
   }
 })
-@ObjectType()
 export class Message extends TimeStamps{
   _id: string;
 

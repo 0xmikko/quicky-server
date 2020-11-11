@@ -2,8 +2,6 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import { prop as Property } from "@typegoose/typegoose/lib/prop";
-
 export type FieldType =
   | "text"
   | "numeric"

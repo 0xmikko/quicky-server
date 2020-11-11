@@ -2,9 +2,8 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import { IsNotEmpty } from "class-validator";
-import { Field, ObjectType } from "type-graphql";
-import { User } from "../core/user";
+import {IsNotEmpty} from "class-validator";
+import {User} from "../core/user";
 import {EncryptHelper} from "../helpers/encrypt";
 
 export interface tokenData {
@@ -19,13 +18,10 @@ export interface TokenPair {
 }
 
 export class Profile {
-  @Field()
   id: string;
 
-  @Field()
   name: string;
 
-  @Field({ nullable: true })
   avatar_url?: string;
 
   isQBTokenEntered: boolean;

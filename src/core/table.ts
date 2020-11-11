@@ -3,8 +3,7 @@
  */
 
 import {prop as Property} from "@typegoose/typegoose/lib/prop";
-import {Embedding} from "./embedding";
-import {IsDate, IsDateString, IsNotEmpty, IsNumber, IsString} from "class-validator";
+import {IsDateString, IsNotEmpty, IsString} from "class-validator";
 
 export class Table {
     _id: string;
@@ -41,7 +40,5 @@ export class Table {
     @IsDateString()
     updated: Date;
 
-    @Property({ ref: "Embedding" })
-    embeddings: Embedding;
 
 }
