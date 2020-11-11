@@ -76,13 +76,13 @@ export class Config {
 
   static getGCP() {
     const gcp = process.env.GOOGLE_CP;
-    const tempdir = __dirname + "/tmp";
+    const tempDir = __dirname + "/tmp";
 
-    if (!fs.existsSync(tempdir)) {
-      fs.mkdirSync(tempdir);
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
     }
 
-    const filename = tempdir + "/google.json";
+    const filename = tempDir + "/google.json";
     fs.writeFileSync(filename, gcp || "");
     process.env.GOOGLE_APPLICATION_CREDENTIALS = filename;
   }
