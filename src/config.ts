@@ -84,6 +84,7 @@ export class Config {
 
     const filename = tempDir + "/google.json";
     fs.writeFileSync(filename, gcp || "");
+    console.log(fs.readdirSync(filename))
     process.env.GOOGLE_APPLICATION_CREDENTIALS = filename;
   }
 
