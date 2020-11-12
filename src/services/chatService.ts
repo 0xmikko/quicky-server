@@ -35,6 +35,7 @@ export class ChatService extends SocketPusherDelegate{
     const result: Record<string, Message> = {};
     const messages = await this._repository.listByUser(userId);
     messages.map(msg => (result[msg._id] = msg));
+    await this._assistantService.checkFirstMessage(userId);
 
     return result;
   }

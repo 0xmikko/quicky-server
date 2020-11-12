@@ -33,7 +33,6 @@ export class ChatController implements SocketController {
     return {
       messages: async (_: string, opHash: string) => {
         const data = await this._service.getMessages(userId);
-        console.log(data);
         socket.emit(this._namespace + ":updateList", data);
         socket.ok(opHash);
       },

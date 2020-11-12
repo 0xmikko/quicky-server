@@ -49,9 +49,16 @@ export class AssistantService {
   }
 
   async proceedRequest(message: Message) {
+    console.log("PROCEED RE:", message);
     if (message.owner === undefined) throw new Error("No message owner");
+    if (message.text === "clear") {
+      await this._clearGDFSession(message.owner.toString());
+      return;
+    }
 
-    const sessionPath = await this._getGDFSession(message.owner.toString());
+    const sessionPath = await this._getGDFSessionOrCreate(
+      message.owner.toString()
+    );
     console.log(sessionPath);
     const request = {
       session: sessionPath,
@@ -83,11 +90,14 @@ export class AssistantService {
         }
       }
 
+      answer.text = answer.text.trim();
+
       if (response.queryResult.parameters?.fields !== undefined) {
         const { quickReplies } = response.queryResult.parameters
           ?.fields as DialogFlowParams;
         quickReplies?.stringValue
-          .split(",")
+          .split(";")
+          .filter(reply => reply !== "")
           .forEach(reply =>
             quickRepliesValues.push({ title: reply, value: reply })
           );
@@ -115,6 +125,61 @@ export class AssistantService {
     // answer.image = qrCode //'https://www.docusign.com/sites/default/files/styles/logo_thumbnail__1x__155x_95_/public/solution_showcase_logo/quickbaselogo.png'
     await this._chatService.sendMessage(message.owner.toString(), answer);
   }
+
+  async checkFirstMessage(userId: string) {
+    const session = await this._getGDFSession(userId);
+    console.log(session);
+    if (session !== null) return;
+    await this.startNewSession(userId);
+  }
+
+  async startNewSession(userId: string) {
+    console.log("New session!");
+    const message = new Message();
+
+    message.owner = userId;
+    message.text = "Hello";
+    await this.proceedRequest(message);
+  }
+
+  protected async _getGDFSessionOrCreate(userId: string): Promise<string> {
+    const redisClient = RedisCache.client;
+
+    const dfSession = await this._getGDFSession(userId);
+    if (dfSession !== null) {
+      return dfSession;
+    }
+    const sessionId = Math.random()
+      .toString(36)
+      .substring(7);
+    const sessionPath = this._dfClient.projectLocationAgentSessionPath(
+      Config.GDFProjectId,
+      Config.GDFLocation,
+      Config.GDFAgentId,
+      sessionId
+    );
+    console.info("SESSION!!!", sessionPath);
+    await RedisCache.client.set(
+      `DF_SESSION_${userId}`,
+      sessionPath,
+      "EX",
+      10000
+    );
+    return sessionPath;
+  }
+
+  protected _getGDFSession(userId: string): Promise<string | null> {
+    const redisClient = RedisCache.client;
+
+    return redisClient.get(`DF_SESSION_${userId}`);
+  }
+
+  protected async _clearGDFSession(userId: string) {
+    const redisClient = RedisCache.client;
+
+    await redisClient.del(`DF_SESSION_${userId}`);
+  }
+
   //
   async _proceed(userId: string, message: Message) {
     const cmd = message.text.split(" ");
@@ -139,31 +204,5 @@ export class AssistantService {
           break;
       }
     }
-  }
-
-  async _getGDFSession(userId: string): Promise<string> {
-    const redisClient = RedisCache.client;
-
-    const dfSession = await redisClient.get(`DF_SESSION_${userId}`);
-    if (dfSession !== null) {
-      return dfSession;
-    }
-    const sessionId = Math.random()
-      .toString(36)
-      .substring(7);
-    const sessionPath = this._dfClient.projectLocationAgentSessionPath(
-      Config.GDFProjectId,
-      Config.GDFLocation,
-      Config.GDFAgentId,
-      sessionId
-    );
-    console.info(sessionPath);
-    await RedisCache.client.set(
-      `DF_SESSION_${userId}`,
-      sessionPath,
-      "EX",
-      10000
-    );
-    return sessionPath;
   }
 }
