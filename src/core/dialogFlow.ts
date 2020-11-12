@@ -9,4 +9,5 @@ export interface DFParam {
 
 export interface DialogFlowParams {
     quickReplies?: DFParam,
+    quickRepliesMulti?: string
 }

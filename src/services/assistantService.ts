@@ -93,14 +93,22 @@ export class AssistantService {
       answer.text = answer.text.trim();
 
       if (response.queryResult.parameters?.fields !== undefined) {
-        const { quickReplies } = response.queryResult.parameters
-          ?.fields as DialogFlowParams;
+        const { quickReplies, quickRepliesMulti } = response.queryResult
+          .parameters?.fields as DialogFlowParams;
         quickReplies?.stringValue
           .split(";")
           .filter(reply => reply !== "")
           .forEach(reply =>
             quickRepliesValues.push({ title: reply, value: reply })
           );
+
+        if (quickRepliesValues.length > 0) {
+          answer.quickReplies = {
+            type: quickRepliesMulti === "true" ? "checkbox" : "radio",
+            keepIt: false,
+            values: quickRepliesValues
+          };
+        }
       }
       if (response.queryResult?.match?.intent) {
         console.log(
@@ -110,14 +118,6 @@ export class AssistantService {
       console.log(
         `Current Page: ${response.queryResult.currentPage?.displayName}`
       );
-    }
-
-    if (quickRepliesValues.length > 0) {
-      answer.quickReplies = {
-        type: "checkbox",
-        keepIt: false,
-        values: quickRepliesValues
-      };
     }
 
     const qrCode = await QRCode.toDataURL("https://google.com", { margin: 10 });
