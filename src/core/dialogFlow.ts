@@ -23,6 +23,6 @@ export interface DialogFlowParams {
 
     screens?: DFParam;
     newScreenType?: DFParam;
-    newScreenTitle?: DFParam;
+    newscreentitle?: DFParam;
     newScreenConfirmed?: DFParam;
 }

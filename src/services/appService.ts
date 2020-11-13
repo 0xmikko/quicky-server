@@ -220,6 +220,11 @@ export class AppService extends SocketPusherDelegate {
       app.hidden = true;
       await this._repository.upsert(app);
     }
-    await this.retrieve(userId)
+    const newApp = await this.retrieve(userId)
+    this._pusher.pushUpdateQueue({
+      userId,
+      event: "app:updateDetails",
+      handler: async () => newApp
+    });
   }
 }

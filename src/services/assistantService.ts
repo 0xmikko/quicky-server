@@ -124,7 +124,7 @@ export class AssistantService {
         const {
           screens,
           newScreenConfirmed,
-          newScreenTitle,
+          newscreentitle,
           newScreenType
         } = dfParams;
         const screensList = screens?.stringValue?.split(" ") || [];
@@ -137,13 +137,13 @@ export class AssistantService {
 
           if (
             newScreenConfirmed?.stringValue === "true" &&
-            newScreenTitle?.stringValue !== "" &&
+            newscreentitle?.stringValue !== "" &&
             newScreenType?.stringValue !== ""
           ) {
             await this._addNewScreen(
               userId,
               newScreenType?.stringValue || "",
-              newScreenTitle?.stringValue || ""
+              newscreentitle?.stringValue || "New screen"
             );
           }
         } catch (e) {
