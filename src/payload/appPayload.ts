@@ -2,7 +2,7 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import { IsNotEmpty } from "class-validator";
+import {IsNotEmpty} from "class-validator";
 import {App} from "../core/app";
 
 export interface QBCredentials {
@@ -38,3 +38,4 @@ export class AppPayload {
       return app
   }
 }
+

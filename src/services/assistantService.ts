@@ -50,16 +50,12 @@ export class AssistantService {
 
   async proceedRequest(message: Message) {
     console.log("PROCEED RE:", message);
-    if (message.owner === undefined) throw new Error("No message owner");
-    if (message.text === "clear") {
-      await this._clearGDFSession(message.owner.toString());
-      return;
-    }
 
-    const sessionPath = await this._getGDFSessionOrCreate(
-      message.owner.toString()
-    );
-    console.log(sessionPath);
+    if (message.owner === undefined) throw new Error("No message owner");
+
+    const userId = message.owner.toString();
+
+    const sessionPath = await this._getGDFSessionOrCreate(userId);
     const request = {
       session: sessionPath,
       queryInput: {
@@ -91,10 +87,13 @@ export class AssistantService {
       }
 
       answer.text = answer.text.trim();
+      const dfParams = response.queryResult.parameters
+        ?.fields as DialogFlowParams;
+      if (dfParams !== undefined) {
+        const { quickReplies, quickRepliesMulti } = dfParams;
+        console.log(dfParams);
+        await this._proceedParameters(message.owner.toString(), dfParams);
 
-      if (response.queryResult.parameters?.fields !== undefined) {
-        const { quickReplies, quickRepliesMulti } = response.queryResult
-          .parameters?.fields as DialogFlowParams;
         quickReplies?.stringValue
           .split(";")
           .filter(reply => reply !== "")
@@ -104,7 +103,8 @@ export class AssistantService {
 
         if (quickRepliesValues.length > 0) {
           answer.quickReplies = {
-            type: quickRepliesMulti === "true" ? "checkbox" : "radio",
+            type:
+              quickRepliesMulti?.stringValue === "true" ? "checkbox" : "radio",
             keepIt: false,
             values: quickRepliesValues
           };
@@ -115,15 +115,47 @@ export class AssistantService {
           `Matched Intent: ${response.queryResult?.match?.intent.displayName}`
         );
       }
+
       console.log(
         `Current Page: ${response.queryResult.currentPage?.displayName}`
       );
+
+      if (response.queryResult.currentPage?.displayName === "E_1_Main") {
+        const {
+          screens,
+          newScreenConfirmed,
+          newScreenTitle,
+          newScreenType
+        } = dfParams;
+        const screensList = screens?.stringValue?.split(" ") || [];
+        try {
+          for (let screen of screensList) {
+            console.log("Trying!!---", screen);
+            await this._addNewScreen(userId, screen, screen);
+
+          }
+
+          if (
+            newScreenConfirmed?.stringValue === "true" &&
+            newScreenTitle?.stringValue !== "" &&
+            newScreenType?.stringValue !== ""
+          ) {
+            await this._addNewScreen(
+              userId,
+              newScreenType?.stringValue || "",
+              newScreenTitle?.stringValue || ""
+            );
+          }
+        } catch (e) {
+          answer.text = e
+        }
+      }
     }
 
     const qrCode = await QRCode.toDataURL("https://google.com", { margin: 10 });
 
     // answer.image = qrCode //'https://www.docusign.com/sites/default/files/styles/logo_thumbnail__1x__155x_95_/public/solution_showcase_logo/quickbaselogo.png'
-    await this._chatService.sendMessage(message.owner.toString(), answer);
+    await this._chatService.sendMessage(userId, answer);
   }
 
   async checkFirstMessage(userId: string) {
@@ -143,8 +175,6 @@ export class AssistantService {
   }
 
   protected async _getGDFSessionOrCreate(userId: string): Promise<string> {
-    const redisClient = RedisCache.client;
-
     const dfSession = await this._getGDFSession(userId);
     if (dfSession !== null) {
       return dfSession;
@@ -174,35 +204,46 @@ export class AssistantService {
     return redisClient.get(`DF_SESSION_${userId}`);
   }
 
-  protected async _clearGDFSession(userId: string) {
-    const redisClient = RedisCache.client;
+  async clearSession(userId: string) {
+    await this._appService.clearApp(userId);
 
+    const message = new Message()
+    message.owner = userId;
+    message.text = "Session reset"
+    message.user = this.ASSISTANT_ID;
+
+    await this._chatService.sendMessage(userId, message);
+    const redisClient = RedisCache.client;
     await redisClient.del(`DF_SESSION_${userId}`);
+
+    await this.checkFirstMessage(userId)
+  }
+
+  protected async _proceedParameters(userId: string, params: DialogFlowParams) {
+    await this._appService.updateProperty(userId, params);
   }
 
   //
-  async _proceed(userId: string, message: Message) {
-    const cmd = message.text.split(" ");
-    if (cmd.length >= 2) {
-      switch (cmd[0].toLowerCase()) {
-        case "title":
-          await this._appService.updateProperty(userId, "splashTitle", cmd[1]);
-          break;
-        case "entity":
-          switch (cmd[1].toLowerCase()) {
-            default:
-            case "contact":
-              await this._appService.addEntity(userId, cmd[1], "Contact");
-              break;
-            case "project":
-              await this._appService.addEntity(userId, cmd[1], "Project");
-              break;
-          }
-          break;
-        case "deploy":
-          await this._appService.deployApp(userId);
-          break;
-      }
+  protected async _addNewScreen(
+    userId: string,
+    type: string,
+    name: string
+  ): Promise<void> {
+    // case "entity":
+    switch (type.toLowerCase()) {
+      default:
+      case "contacts":
+        await this._appService.addEntity(userId, name, "Contact");
+        break;
+      case "projects":
+        await this._appService.addEntity(userId, name, "Project");
+        break;
     }
+    // break;
+    //   case "deploy":
+    //     await this._appService.deployApp(userId);
+    //     break;
+    // }
+    // }
   }
 }

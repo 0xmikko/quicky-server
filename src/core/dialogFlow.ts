@@ -2,12 +2,27 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-export interface DFParam {
-    stringValue: string,
-    kind: "stringValue"
+export class DFParam {
+    stringValue: string;
+    kind: "stringValue";
+
+    get value() : string {
+        return this.stringValue
+    }
 }
 
 export interface DialogFlowParams {
-    quickReplies?: DFParam,
-    quickRepliesMulti?: string
+    quickReplies?: DFParam;
+    quickRepliesMulti?: DFParam;
+
+    splashtitle?: DFParam;
+    splashTitleColor?: DFParam;
+    splashSubtitle?: DFParam;
+    splashSubtitleColor?: DFParam;
+    splashBackground?: DFParam;
+
+    screens?: DFParam;
+    newScreenType?: DFParam;
+    newScreenTitle?: DFParam;
+    newScreenConfirmed?: DFParam;
 }

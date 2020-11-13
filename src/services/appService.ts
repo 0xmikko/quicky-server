@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020. Mikhail Lazarev
  */
-import { Inject, Service } from "typedi";
+import { Container, Inject, Service } from "typedi";
 import { AppRepository } from "../repository/appRepository";
 import { UserRepository } from "../repository/userRepository";
 import { SocketPusherDelegate } from "../core/socket";
@@ -13,6 +13,7 @@ import { AppEntity, EntityType } from "../core/appEntity";
 import { ProjectEntity } from "../entities/projectEntity";
 import { Field } from "../core/field";
 import { QBCredentials } from "../payload/appPayload";
+import { DialogFlowParams } from "../core/dialogFlow";
 
 @Service()
 export class AppService extends SocketPusherDelegate {
@@ -24,6 +25,8 @@ export class AppService extends SocketPusherDelegate {
 
   @Inject()
   private _userRepository: UserRepository;
+
+  private _appService: AppService;
 
   async connectApp(userId: string, url: string) {
     const qbCredentials = await this._userRepository.getQBTokenElseThrow(
@@ -63,22 +66,23 @@ export class AppService extends SocketPusherDelegate {
 
     app = new App();
     app.name = "New app";
-    app.splashTitle = "Quick Base";
-    app.splashSubtitle = "App builder";
-    app.splashTitleColor = "green";
-    app.splashSubtitleColor = "red";
-    app.splashBackground = "grey";
+    app.splashTitle = "Quicky";
+    app.splashSubtitle = "AI app builder";
+    app.splashTitleColor = "white";
+    app.splashSubtitleColor = "white";
+    app.splashBackground = "#763e9a";
 
     app.owner = userId;
 
     return await this._repository.insert(app);
   }
 
-  async updateProperty(userId: string, property: string, newValue: string) {
+  async updateProperty(userId: string, params: DialogFlowParams) {
     let app = await this._repository.findByUser(userId);
     if (app === null) throw new Error("App not found");
-    //@ts-ignore
-    app[property] = newValue;
+
+    app.updateWithDFParams(params);
+
     await this._repository.save(app);
     this._pusher.pushUpdateQueue({
       userId,
@@ -93,8 +97,13 @@ export class AppService extends SocketPusherDelegate {
 
     // For new applications add new Setting entity
     if (app.entities.length === 0) {
+      console.log("Adding settong");
       const settingsEntity = new SettingsEntity();
       app.entities.push(settingsEntity);
+    } else {
+      if (app.entities.filter(e => e.name === entityName).length > 0) {
+        throw new Error("Screen with this name is already exists!");
+      }
     }
 
     let entity: AppEntity;
@@ -116,7 +125,7 @@ export class AppService extends SocketPusherDelegate {
     entity.order = app.entities.length;
     app.entities.push(entity);
     console.log(app);
-    await this._repository.save(app);
+    await this._repository.upsert(app);
     this._pusher.pushUpdateQueue({
       userId,
       event: "app:updateDetails",
@@ -132,7 +141,8 @@ export class AppService extends SocketPusherDelegate {
       userId
     );
 
-    if (app.qbAppId === undefined) throw new Error("QuickBase app id is not set!")
+    if (app.qbAppId === undefined)
+      throw new Error("QuickBase app id is not set!");
     console.log("QQB", app.qbAppId);
 
     const updatedEntities: AppEntity[] = [];
@@ -202,5 +212,14 @@ export class AppService extends SocketPusherDelegate {
       }
     }
     return entity;
+  }
+
+  async clearApp(userId: string) {
+    let app = await this._repository.findByUser(userId);
+    if (app !== null) {
+      app.hidden = true;
+      await this._repository.upsert(app);
+    }
+    await this.retrieve(userId)
   }
 }

@@ -13,10 +13,10 @@ export class AppRepository extends MongoRepository<App> {
   }
 
   async listByUser(userId: string): Promise<App[]> {
-    return await this._model.find({ owner: userId }).exec();
+    return await this._model.find({ owner: userId, hidden:false }).exec();
   }
 
   async findByUser(userId: string): Promise<App | null> {
-    return await this._model.findOne({ owner: userId }).exec();
+    return await this._model.findOne({ owner: userId, hidden:false }).exec();
   }
 }

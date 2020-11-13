@@ -11,11 +11,15 @@ import {
 import { Inject, Service } from "typedi";
 import { AppService } from "../services/appService";
 import { AuthService } from "../services/authService";
+import { AssistantService } from "../services/assistantService";
 
 @Service()
 export class AppController implements SocketController {
   @Inject()
   private _service: AppService;
+
+  @Inject()
+  private _assistantService: AssistantService;
 
   @Inject()
   private _authService: AuthService;
@@ -38,9 +42,9 @@ export class AppController implements SocketController {
         socket.ok(opHash);
       },
 
-      retrieve: async (_:string, opHash: string) => {
+      retrieve: async (_: string, opHash: string) => {
         const result = await this._service.retrieve(userId);
-        console.log(result)
+        console.log(result);
         socket.emit(this._namespace + ":updateDetails", result);
         socket.ok(opHash);
       },
@@ -54,6 +58,11 @@ export class AppController implements SocketController {
 
       new: async (url: string, opHash: string) => {
         await this._service.connectApp(userId, url);
+        socket.ok(opHash);
+      },
+
+      reset: async (_: string, opHash: string) => {
+        await this._assistantService.clearSession(userId);
         socket.ok(opHash);
       }
     };

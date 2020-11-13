@@ -7,6 +7,7 @@ import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses";
 import { prop as Property } from "@typegoose/typegoose/lib/prop";
 import { User } from "./user";
 import { AppEntity } from "./appEntity";
+import { DialogFlowParams } from "./dialogFlow";
 
 @modelOptions({
   schemaOptions: {
@@ -54,6 +55,9 @@ export class App extends TimeStamps {
   @Property({ type: () => [AppEntity] })
   entities: Array<AppEntity>;
 
+  @Property({ default: false })
+  hidden: boolean;
+
   @Property({
     ref: "User",
     required: true
@@ -63,5 +67,17 @@ export class App extends TimeStamps {
   public get id(): string {
     //@ts-ignore
     return this._id;
+  }
+
+  public updateWithDFParams(params: DialogFlowParams) {
+    this.splashTitle = params.splashtitle?.stringValue || this.splashTitle;
+
+    this.splashSubtitle = params.splashSubtitle?.value || this.splashSubtitle;
+    this.splashTitleColor =
+      params.splashTitleColor?.value || this.splashTitleColor;
+    this.splashSubtitleColor =
+      params.splashSubtitleColor?.value || this.splashSubtitleColor;
+    this.splashBackground =
+      params.splashBackground?.value || this.splashBackground;
   }
 }
