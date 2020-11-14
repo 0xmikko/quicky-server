@@ -11,7 +11,7 @@ import { ContactEntity } from "../entities/contactEntity";
 import { SettingsEntity } from "../entities/settingsEntity";
 import { AppEntity, EntityType } from "../core/appEntity";
 import { ProjectEntity } from "../entities/projectEntity";
-import { Field } from "../core/field";
+import { allowedFields, Field, FieldType } from "../core/field";
 import { QBCredentials } from "../payload/appPayload";
 import { DialogFlowParams } from "../core/dialogFlow";
 
@@ -25,8 +25,6 @@ export class AppService extends SocketPusherDelegate {
 
   @Inject()
   private _userRepository: UserRepository;
-
-  private _appService: AppService;
 
   async connectApp(userId: string, url: string) {
     const qbCredentials = await this._userRepository.getQBTokenElseThrow(
@@ -77,6 +75,7 @@ export class AppService extends SocketPusherDelegate {
     return await this._repository.insert(app);
   }
 
+  // update a property for current app
   async updateProperty(userId: string, params: DialogFlowParams) {
     let app = await this._repository.findByUser(userId);
     if (app === null) throw new Error("App not found");
@@ -84,11 +83,7 @@ export class AppService extends SocketPusherDelegate {
     app.updateWithDFParams(params);
 
     await this._repository.save(app);
-    this._pusher.pushUpdateQueue({
-      userId,
-      event: "app:updateDetails",
-      handler: async () => app
-    });
+    this._updateApp(userId, app);
   }
 
   async addEntity(userId: string, entityName: string, entityType: EntityType) {
@@ -126,11 +121,7 @@ export class AppService extends SocketPusherDelegate {
     app.entities.push(entity);
     console.log(app);
     await this._repository.upsert(app);
-    this._pusher.pushUpdateQueue({
-      userId,
-      event: "app:updateDetails",
-      handler: async () => app
-    });
+    this._updateApp(userId, app);
   }
 
   async deployApp(userId: string) {
@@ -214,17 +205,99 @@ export class AppService extends SocketPusherDelegate {
     return entity;
   }
 
+  // clears all info of current app
   async clearApp(userId: string) {
     let app = await this._repository.findByUser(userId);
     if (app !== null) {
       app.hidden = true;
       await this._repository.upsert(app);
     }
-    const newApp = await this.retrieve(userId)
+    const newApp = await this.retrieve(userId);
+    this._updateApp(userId, newApp);
+  }
+
+  // add new screen to app
+  async addNewScreen(
+    userId: string,
+    type: string,
+    name: string
+  ): Promise<void> {
+    // case "entity":
+    switch (type.toLowerCase()) {
+      default:
+      case "contacts":
+        await this.addEntity(userId, name, "Contact");
+        break;
+      case "projects":
+        await this.addEntity(userId, name, "Project");
+        break;
+    }
+  }
+
+  // add additional field to entity
+  async addFieldToEntity(
+    userId: string,
+    currentScreen: string,
+    fieldName: string,
+    fieldType: string
+  ) {
+    if (!allowedFields.includes(fieldType))
+      throw new Error("Field type is not supported");
+
+    let app = await this._repository.findByUser(userId);
+    if (app === null) throw new Error("App not found");
+
+    app.entities = app.entities.map(entity => {
+      if (entity.name === currentScreen) {
+        entity.dataMapper[fieldName] = new Field(
+          fieldName,
+          fieldType as FieldType
+        );
+        entity.additionalFields = [...entity.additionalFields, fieldName];
+      }
+      return entity;
+    });
+    await this._repository.upsert(app);
+    this._updateApp(userId, app);
+  }
+
+
+  // Return list of screen names of app for current user
+  async listScreens(userId: string): Promise<string[]> {
+    let app = await this._repository.findByUser(userId);
+    if (app === null) throw new Error("App not found");
+    return app.entities.map(e => e.name);
+  }
+
+  // Delete screen with particular name in app found by userId
+  async deleteScreen(userId: string, name: string) {
+    let app = await this._repository.findByUser(userId);
+    if (app === null) throw new Error("App not found");
+    app.entities = app.entities.filter(ent => ent.name !== name);
+    await this._repository.upsert(app);
+    this._updateApp(userId, app);
+  }
+
+  async switchToScreen(userId: string, current_screen: string) {
+    let app = await this._repository.findByUser(userId);
+    if (app === null) throw new Error("App not found");
+    const screenType = app.entities.filter(ent => ent.name === current_screen);
+    if (screenType.length === 0) throw new Error("Screen not found");
+
+    this._pusher.pushUpdateQueue({
+      userId,
+      event: "app:switchToScreen",
+      handler: async () => screenType[0].type
+    });
+  }
+
+
+  // Update mobile state using websocket
+  protected _updateApp(userId: string, app: App) {
     this._pusher.pushUpdateQueue({
       userId,
       event: "app:updateDetails",
-      handler: async () => newApp
+      handler: async () => app
     });
   }
 }

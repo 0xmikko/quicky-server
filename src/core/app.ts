@@ -70,14 +70,15 @@ export class App extends TimeStamps {
   }
 
   public updateWithDFParams(params: DialogFlowParams) {
-    this.splashTitle = params.splashtitle?.stringValue || this.splashTitle;
+    this.splashTitle = params.splash_title?.stringValue || this.splashTitle;
 
-    this.splashSubtitle = params.splashSubtitle?.value || this.splashSubtitle;
+    this.splashSubtitle =
+      params.splash_subtitle?.stringValue || this.splashSubtitle;
     this.splashTitleColor =
-      params.splashTitleColor?.value || this.splashTitleColor;
+      params.splash_title_color?.stringValue || this.splashTitleColor;
     this.splashSubtitleColor =
-      params.splashSubtitleColor?.value || this.splashSubtitleColor;
+      params.splash_subtitleColor?.stringValue || this.splashSubtitleColor;
     this.splashBackground =
-      params.splashBackground?.value || this.splashBackground;
+      params.splash_background?.stringValue || this.splashBackground;
   }
 }

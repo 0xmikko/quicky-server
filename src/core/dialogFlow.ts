@@ -2,27 +2,37 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-export class DFParam {
-    stringValue: string;
+export interface DFParam {
+    stringValue?: string;
     kind: "stringValue";
 
-    get value() : string {
-        return this.stringValue
-    }
 }
 
 export interface DialogFlowParams {
     quickReplies?: DFParam;
     quickRepliesMulti?: DFParam;
 
-    splashtitle?: DFParam;
-    splashTitleColor?: DFParam;
-    splashSubtitle?: DFParam;
-    splashSubtitleColor?: DFParam;
-    splashBackground?: DFParam;
+    splash_title?: DFParam;
+    splash_title_color?: DFParam;
+    splash_subtitle?: DFParam;
+    splash_subtitleColor?: DFParam;
+    splash_background?: DFParam;
 
+    // templates
     screens?: DFParam;
-    newScreenType?: DFParam;
-    newscreentitle?: DFParam;
-    newScreenConfirmed?: DFParam;
+
+    // add new screen
+    new_screen_type?: DFParam;
+    new_screen_title?: DFParam;
+    new_screen_confirmed?: DFParam;
+
+    // Edit screen
+    current_screen?: DFParam;
+    field_name?: DFParam;
+    field_type?: DFParam;
+    delete_screen?: DFParam;
+
+    // Deployment
+    quickbase_url?: DFParam;
+    user_token?: DFParam;
 }

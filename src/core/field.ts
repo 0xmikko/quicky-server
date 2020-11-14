@@ -14,6 +14,15 @@ export type FieldType =
   | "text-multi-line"
   | "currency";
 
+export const allowedFields = [
+  "text",
+  "numeric",
+  "timestamp",
+  "url",
+  "text-multi-line",
+  "currency"
+];
+
 export class Field {
   constructor(label: string, fieldType: FieldType) {
     this.label = label;

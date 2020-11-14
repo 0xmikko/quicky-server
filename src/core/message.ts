@@ -2,10 +2,10 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import {User} from "./user";
-import {modelOptions, prop as Property, Ref} from "@typegoose/typegoose";
-import {TimeStamps} from "@typegoose/typegoose/lib/defaultClasses";
-import {QuickReplies} from "./quickReply";
+import { User } from "./user";
+import { modelOptions, prop as Property, Ref } from "@typegoose/typegoose";
+import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses";
+import { QuickReplies } from "./quickReply";
 
 @modelOptions({
   schemaOptions: {
@@ -13,38 +13,38 @@ import {QuickReplies} from "./quickReply";
     toObject: { virtuals: true }
   }
 })
-export class Message extends TimeStamps{
+export class Message extends TimeStamps {
   _id: string;
 
   @Property()
   text: string;
 
   @Property()
-  quickReplies?: QuickReplies
+  quickReplies?: QuickReplies;
 
   @Property()
   pending: boolean;
 
   @Property()
-  image?: string
+  image?: string;
 
   @Property()
-  video?: string
+  video?: string;
 
   @Property()
-  audio?: string
+  audio?: string;
 
   @Property({
-    ref: 'User',
-    required: true,
+    ref: "User",
+    required: true
     // foreignField: "user",
     // localField: "_id"
   })
   user: Ref<User>;
 
   @Property({
-    ref: 'User',
-    required: true,
+    ref: "User",
+    required: true
     // foreignField: "user",
     // localField: "_id"
   })
@@ -54,7 +54,6 @@ export class Message extends TimeStamps{
     //@ts-ignore
     return this._id;
   }
-
 }
 
 export interface MessagesRepositoryI {
