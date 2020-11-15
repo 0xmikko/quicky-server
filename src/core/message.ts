@@ -34,6 +34,9 @@ export class Message extends TimeStamps {
   @Property()
   audio?: string;
 
+  @Property({default: "current"})
+  session: string;
+
   @Property({
     ref: "User",
     required: true

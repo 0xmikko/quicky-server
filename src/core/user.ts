@@ -2,10 +2,17 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import {getModelForClass, modelOptions, pre, prop as Property, Ref} from "@typegoose/typegoose";
-import {Message} from "./message";
-import {TimeStamps} from "@typegoose/typegoose/lib/defaultClasses";
-import {EncryptHelper} from "../helpers/encrypt";
+import {
+  getModelForClass,
+  modelOptions,
+  pre,
+  prop as Property,
+  Ref
+} from "@typegoose/typegoose";
+import { Message } from "./message";
+import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses";
+import { EncryptHelper } from "../helpers/encrypt";
+import { DialogFlowParams } from "./dialogFlow";
 
 export interface UserID {
   id: string;
@@ -37,6 +44,9 @@ export class User extends TimeStamps {
   @Property()
   family_name: string;
 
+  @Property({ default: "" })
+  company: string;
+
   @Property()
   role: string;
 
@@ -50,7 +60,7 @@ export class User extends TimeStamps {
   _qbToken: string | null;
 
   @Property()
-  hostName?: string
+  hostName?: string;
 
   @Property({
     ref: "Message",
@@ -73,6 +83,14 @@ export class User extends TimeStamps {
     if (this._qbToken === null || this._qbToken === undefined)
       throw new Error("Invalid QB token");
     return EncryptHelper.decrypt(this._qbToken);
+  }
+
+  updateWithDFParams(params: DialogFlowParams) {
+    this.company = params.company_name?.stringValue || this.company;
+    this.hostName = params.quickbase_url?.stringValue || this.hostName;
+    if (params.user_token?.stringValue) {
+      this._qbToken = params.user_token?.stringValue;
+    }
   }
 }
 

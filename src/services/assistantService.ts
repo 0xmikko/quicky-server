@@ -85,18 +85,13 @@ export class AssistantService {
   async checkFirstMessage(userId: string) {
     const session = await this._getGDFSession(userId);
     if (session !== null) return;
-    await this.startNewSession(userId);
+    await this._startNewSession(userId);
   }
 
-  async startNewSession(userId: string) {
-    const message = new Message();
-    message.owner = userId;
-    message.text = "Hello";
-    await this.proceedRequest(message);
-  }
-
+  // Reset current session, delete existing app & saves all chat messages to archive
   async clearSession(userId: string) {
     await this._appService.clearApp(userId);
+
 
     const message = new Message();
     message.owner = userId;
@@ -104,6 +99,8 @@ export class AssistantService {
     message.user = this.ASSISTANT_ID;
 
     await this._chatService.sendMessage(userId, message);
+    await this._chatService.archiveMessages(userId);
+
     const redisClient = RedisCache.client;
     await redisClient.del(`DF_SESSION_${userId}`);
 
@@ -111,6 +108,9 @@ export class AssistantService {
   }
 
   // PROTECTED METHODS
+  protected _getGDFSession(userId: string): Promise<string | null> {
+    return RedisCache.client.get(`DF_SESSION_${userId}`);
+  }
 
   protected async _getGDFSessionOrCreate(userId: string): Promise<string> {
     const dfSession = await this._getGDFSession(userId);
@@ -126,7 +126,6 @@ export class AssistantService {
       Config.GDFAgentId,
       sessionId
     );
-    console.info("SESSION!!!", sessionPath);
     await RedisCache.client.set(
       `DF_SESSION_${userId}`,
       sessionPath,
@@ -136,11 +135,10 @@ export class AssistantService {
     return sessionPath;
   }
 
-  protected _getGDFSession(userId: string): Promise<string | null> {
-    const redisClient = RedisCache.client;
-
-    return redisClient.get(`DF_SESSION_${userId}`);
+  protected async _startNewSession(userId: string) {
+    const message = new Message();
+    message.owner = userId;
+    message.text = "Hello";
+    await this.proceedRequest(message);
   }
-
-  //
 }

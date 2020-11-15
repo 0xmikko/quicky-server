@@ -2,15 +2,15 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import { Inject, Service } from "typedi";
-import { Message } from "../core/message";
-import { UserRepository } from "../repository/userRepository";
-import { AppService } from "./appService";
-import { DialogFlowParams } from "../core/dialogFlow";
-import { QuickReplies, QuickReplyValue } from "../core/quickReply";
+import {Inject, Service} from "typedi";
+import {Message} from "../core/message";
+import {AppService} from "./appService";
+import {DialogFlowParams} from "../core/dialogFlow";
+import {QuickReplies, QuickReplyValue} from "../core/quickReply";
 // @ts-ignore
 import QRCode from "qrcode";
-import { google } from "@google-cloud/dialogflow-cx/build/protos/protos";
+import {google} from "@google-cloud/dialogflow-cx/build/protos/protos";
+import {ProfileService} from "./profileService";
 import IQueryResult = google.cloud.dialogflow.cx.v3beta1.IQueryResult;
 
 @Service()
@@ -19,45 +19,41 @@ export class AssistantRequestService {
   private _appService: AppService;
 
   @Inject()
-  private _userRepository: UserRepository;
+  private _profileService: ProfileService;
 
   async proceedRequest(
     userId: string,
     answer: Message,
     queryResult: IQueryResult
   ): Promise<Message> {
-    const { responseMessages } = queryResult;
-    for (const message of responseMessages || []) {
-      if (message.text) {
-        answer.text += message.text.text;
-      }
-    }
-
-    answer.text = answer.text.trim();
-    const dfParams = queryResult.parameters?.fields as DialogFlowParams;
-    if (dfParams !== undefined) {
-      console.log(dfParams);
-
-      answer.quickReplies = this._proceedQuickReplies(dfParams);
-    }
-    // if (response.queryResult?.match?.intent) {
-    //   console.log(
-    //     `Matched Intent: ${response.queryResult?.match?.intent.displayName}`
-    //   );
-    // }
-
-    const currentPage = queryResult.currentPage?.displayName;
-    console.log(`Current Page: ${currentPage}`);
-
     try {
-      await this._appService.updateProperty(userId, dfParams);
-      if (currentPage)
-        answer = await this._proceedPageParameters(
-          userId,
-          currentPage,
-          dfParams,
-          answer
-        );
+      const responseMessages = queryResult.responseMessages || [];
+      answer.text += responseMessages.map(rm => rm.text?.text).join("");
+      answer.text = answer.text.trim();
+
+      const dfParams = queryResult.parameters?.fields as DialogFlowParams;
+
+      if (dfParams) {
+        console.log(dfParams);
+        answer.quickReplies = this._proceedQuickReplies(dfParams);
+        const currentPage = queryResult.currentPage?.displayName;
+        console.log(`Current Page: ${currentPage}`);
+
+        await this._appService.updateProperty(userId, dfParams);
+        await this._profileService.updateWithDFParams(userId, dfParams);
+        if (currentPage)
+          answer = await this._proceedPageParameters(
+            userId,
+            currentPage,
+            dfParams,
+            answer
+          );
+      }
+      // if (response.queryResult?.match?.intent) {
+      //   console.log(
+      //     `Matched Intent: ${response.queryResult?.match?.intent.displayName}`
+      //   );
+      // }
     } catch (e) {
       answer.text = e;
     }
@@ -71,7 +67,6 @@ export class AssistantRequestService {
   /*
         PROTECTED METHODS
    */
-
 
   // Checks actions driven by page parameters
   // for some particular screens

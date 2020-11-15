@@ -12,17 +12,26 @@ export class MessageRepository extends MongoRepository<Message> {
     super(Message);
   }
 
-  async getFull(id: string) : Promise<Message | null> {
+  async getFull(id: string): Promise<Message | null> {
     return await this._model
-        .findById(id)
-        .populate("user", 'name')
-        .exec();
+      .findById(id)
+      .populate("user", "name")
+      .exec();
   }
 
   async listByUser(userId: string): Promise<Message[]> {
     return await this._model
-      .find({owner: userId})
-      .populate("user", 'name')
+      .find({ owner: userId, session: "current" })
+      .populate("user", "name")
+      .exec();
+  }
+
+  async finalizeSession(userId: string) {
+    await this._model
+      .updateMany(
+        { owner: userId, session: "current" },
+        { session: new Date().toISOString() }
+      )
       .exec();
   }
 }

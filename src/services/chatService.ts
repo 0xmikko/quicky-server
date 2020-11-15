@@ -5,12 +5,12 @@
 import { Inject, Service } from "typedi";
 import { Message } from "../core/message";
 import { MessageRepository } from "../repository/messageRepository";
-import {SocketPusher, SocketPusherDelegate} from "../core/socket";
+import { SocketPusher, SocketPusherDelegate } from "../core/socket";
 import { PostMessageDTO } from "../payload/chatPayload";
 import { AssistantService } from "./assistantService";
 
 @Service()
-export class ChatService extends SocketPusherDelegate{
+export class ChatService extends SocketPusherDelegate {
   @Inject()
   private _repository: MessageRepository;
 
@@ -26,7 +26,7 @@ export class ChatService extends SocketPusherDelegate{
 
     const savedMessage = await this._repository.getFull(newMessage.id);
     if (savedMessage === null) throw new Error("Cant save message");
-    await this._assistantService.proceedRequest(savedMessage)
+    await this._assistantService.proceedRequest(savedMessage);
 
     return savedMessage;
   }
@@ -47,6 +47,15 @@ export class ChatService extends SocketPusherDelegate{
       userId: userId,
       event: "chat:updateMessage",
       handler: () => this._repository.getFull(newMessage.id)
+    });
+  }
+
+  async archiveMessages(userId: string) {
+    await this._repository.finalizeSession(userId);
+    this._pusher.pushUpdateQueue({
+      userId: userId,
+      event: "chat:updateList",
+      handler: () => this._repository.listByUser(userId)
     });
   }
 }

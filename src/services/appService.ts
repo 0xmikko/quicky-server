@@ -14,6 +14,7 @@ import { ProjectEntity } from "../entities/projectEntity";
 import { allowedFields, Field, FieldType } from "../core/field";
 import { QBCredentials } from "../payload/appPayload";
 import { DialogFlowParams } from "../core/dialogFlow";
+import {MessageRepository} from "../repository/messageRepository";
 
 @Service()
 export class AppService extends SocketPusherDelegate {

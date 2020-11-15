@@ -12,6 +12,7 @@ export interface DialogFlowParams {
     quickReplies?: DFParam;
     quickRepliesMulti?: DFParam;
 
+    // Splash screen config
     splash_title?: DFParam;
     splash_title_color?: DFParam;
     splash_subtitle?: DFParam;
@@ -32,7 +33,8 @@ export interface DialogFlowParams {
     field_type?: DFParam;
     delete_screen?: DFParam;
 
-    // Deployment
+    // User parameters
+    company_name?: DFParam;
     quickbase_url?: DFParam;
     user_token?: DFParam;
 }
