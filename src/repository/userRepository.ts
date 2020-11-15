@@ -14,17 +14,12 @@ export class UserRepository extends MongoRepository<User> {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return await this._model.findOne({ email }).exec();
+    return await this._model.findOne({email}).exec();
   }
 
-  async getQBTokenElseThrow(id: string): Promise<QBCredentials> {
+  async getQBTokenElseThrow(id: string): Promise<string> {
     const user = await this.findById(id);
     if (user === null || user === undefined) throw new Error("User not found");
-    if (user.hostName === undefined)
-      throw new Error("Quickbase host name isn't set");
-    return {
-      hostName: user.hostName,
-      token: user.getQBTokenElseThrow()
-    };
+    return user.getQBTokenElseThrow()
   }
 }

@@ -18,7 +18,6 @@ import { DialogFlowParams } from "./dialogFlow";
 export class App extends TimeStamps {
   _id: string;
 
-
   constructor() {
     super();
     this.name = "New app";
@@ -27,7 +26,7 @@ export class App extends TimeStamps {
     this.splashTitleColor = "white";
     this.splashSubtitleColor = "white";
     this.splashBackground = "#763e9a";
-    this.logoUrl = "https://mobile.quicky.digital/app_logo.png"
+    this.logoUrl = "https://mobile.quicky.digital/app_logo.png";
   }
 
   @Property()
@@ -84,6 +83,15 @@ export class App extends TimeStamps {
   // Updates App object with new set of Dialog flow params
 
   public updateWithDFParams(params: DialogFlowParams) {
+    if (params.quickbase_url?.stringValue) {
+      const url = params.quickbase_url?.stringValue;
+      const parts = url.split("/db/");
+      if (parts.length !== 2)
+        throw new Error("Incorrect quickbase url was provided");
+      this.qbHostName = parts[0];
+      this.qbAppId = parts[1];
+    }
+
     this.splashTitle = params.splash_title?.stringValue || this.splashTitle;
 
     this.splashSubtitle =

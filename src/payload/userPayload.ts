@@ -28,8 +28,6 @@ export class Profile {
 
   qbToken: string;
 
-  hostName?: string;
-
   constructor(user: User) {
     this.id = user.id;
     this.name = user.name;
@@ -39,7 +37,6 @@ export class Profile {
       user._qbToken !== "" &&
       user._qbToken !== undefined;
     this.qbToken = EncryptHelper.decrypt(user._qbToken)
-    this.hostName = user.hostName;
   }
 
 }

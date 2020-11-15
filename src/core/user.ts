@@ -59,8 +59,6 @@ export class User extends TimeStamps {
   @Property()
   _qbToken: string | null;
 
-  @Property()
-  hostName?: string;
 
   @Property({
     ref: "Message",
@@ -87,7 +85,6 @@ export class User extends TimeStamps {
 
   updateWithDFParams(params: DialogFlowParams) {
     this.company = params.company_name?.stringValue || this.company;
-    this.hostName = params.quickbase_url?.stringValue || this.hostName;
     if (params.user_token?.stringValue) {
       this._qbToken = params.user_token?.stringValue;
     }

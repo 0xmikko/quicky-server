@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020. Mikhail Lazarev
  */
-import { Container, Inject, Service } from "typedi";
+import { Inject, Service } from "typedi";
 import { AppRepository } from "../repository/appRepository";
 import { UserRepository } from "../repository/userRepository";
 import { SocketPusherDelegate } from "../core/socket";
@@ -12,9 +12,8 @@ import { SettingsEntity } from "../entities/settingsEntity";
 import { AppEntity, EntityType } from "../core/appEntity";
 import { ProjectEntity } from "../entities/projectEntity";
 import { allowedFields, Field, FieldType } from "../core/field";
-import { QBCredentials } from "../payload/appPayload";
+import { AppDeploymentData, QBCredentials } from "../payload/appPayload";
 import { DialogFlowParams } from "../core/dialogFlow";
-import {MessageRepository} from "../repository/messageRepository";
 
 @Service()
 export class AppService extends SocketPusherDelegate {
@@ -27,30 +26,30 @@ export class AppService extends SocketPusherDelegate {
   @Inject()
   private _userRepository: UserRepository;
 
-  async connectApp(userId: string, url: string) {
-    const qbCredentials = await this._userRepository.getQBTokenElseThrow(
-      userId
-    );
-
-    const appId = "bqyg6th9t";
-    const hostName = "hackathon20-mlazarev.quickbase.com";
-
-    // Getting app
-    const app = await this._qbRepository.getApp(appId, qbCredentials);
-    app.qbHostName = hostName;
-
-    // Creating / updating app in database
-    await this._repository.upsert(app);
-
-    const tables = await this._qbRepository.getTables(appId, qbCredentials);
-
-    for (let table of tables) {
-      const fields = await this._qbRepository.getFields(
-        table.id,
-        qbCredentials
-      );
-    }
-  }
+  // async connectApp(userId: string, url: string) {
+  //   const qbCredentials = await this._userRepository.getQBTokenElseThrow(
+  //     userId
+  //   );
+  //
+  //   const appId = "bqyg6th9t";
+  //   const hostName = "hackathon20-mlazarev.quickbase.com";
+  //
+  //   // Getting app
+  //   const app = await this._qbRepository.getApp(appId, qbCredentials);
+  //   app.qbHostName = hostName;
+  //
+  //   // Creating / updating app in database
+  //   await this._repository.upsert(app);
+  //
+  //   const tables = await this._qbRepository.getTables(appId, qbCredentials);
+  //
+  //   for (let table of tables) {
+  //     const fields = await this._qbRepository.getFields(
+  //       table.id,
+  //       qbCredentials
+  //     );
+  //   }
+  // }
 
   async list(userId: string): Promise<App[]> {
     return await this._repository.listByUser(userId);
@@ -114,19 +113,21 @@ export class AppService extends SocketPusherDelegate {
     this._updateApp(userId, app);
   }
 
-  async deployApp(userId: string) {
+  async deployApp(userId: string): Promise<AppDeploymentData> {
     const app = await this._getAppOrThrow(userId);
 
-    const qbCredentials = await this._userRepository.getQBTokenElseThrow(
-      userId
-    );
+    const token = await this._userRepository.getQBTokenElseThrow(userId);
+    const qbCredentials = {
+      token,
+      hostName: app.qbHostName
+    };
 
     if (app.qbAppId === undefined)
       throw new Error("QuickBase app id is not set!");
 
     const updatedEntities: AppEntity[] = [];
     for (let entity of app.entities) {
-      if (entity.type !== "Contact") continue;
+      if (entity.type === "Setting") continue;
       let updEntity = await this._deployEntity(
         qbCredentials,
         app.qbAppId,
@@ -139,6 +140,11 @@ export class AppService extends SocketPusherDelegate {
     app.entities = updatedEntities;
 
     await this._repository.upsert(app);
+
+    return {
+      appId: app.qbAppId,
+      ...qbCredentials
+    };
   }
 
   // clears all info of current app
@@ -213,12 +219,14 @@ export class AppService extends SocketPusherDelegate {
   async switchToScreen(userId: string, current_screen: string) {
     const app = await this._getAppOrThrow(userId);
     const screenType = app.entities.filter(ent => ent.name === current_screen);
-    if (screenType.length === 0) throw new Error("Screen not found");
 
+    if (screenType.length === 0) throw new Error("Screen not found");
+    const entityToSwitch = screenType[0].type;
+    console.log("SWITCH TO", entityToSwitch);
     this._pusher.pushUpdateQueue({
       userId,
       event: "app:switchToScreen",
-      handler: async () => screenType[0].type
+      handler: async () => entityToSwitch
     });
   }
 

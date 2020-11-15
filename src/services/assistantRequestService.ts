@@ -2,16 +2,18 @@
  * Copyright (c) 2020. Mikhail Lazarev
  */
 
-import {Inject, Service} from "typedi";
-import {Message} from "../core/message";
-import {AppService} from "./appService";
-import {DialogFlowParams} from "../core/dialogFlow";
-import {QuickReplies, QuickReplyValue} from "../core/quickReply";
+import { Inject, Service } from "typedi";
+import { Message } from "../core/message";
+import { AppService } from "./appService";
+import { DialogFlowParams } from "../core/dialogFlow";
+import { QuickReplies, QuickReplyValue } from "../core/quickReply";
 // @ts-ignore
 import QRCode from "qrcode";
-import {google} from "@google-cloud/dialogflow-cx/build/protos/protos";
-import {ProfileService} from "./profileService";
+import { google } from "@google-cloud/dialogflow-cx/build/protos/protos";
+import { ProfileService } from "./profileService";
 import IQueryResult = google.cloud.dialogflow.cx.v3beta1.IQueryResult;
+import { ChatService } from "./chatService";
+import { AssistantService } from "./assistantService";
 
 @Service()
 export class AssistantRequestService {
@@ -20,6 +22,12 @@ export class AssistantRequestService {
 
   @Inject()
   private _profileService: ProfileService;
+
+  private _assistantService: AssistantService;
+
+  set assistantService(value: AssistantService) {
+    this._assistantService = value;
+  }
 
   async proceedRequest(
     userId: string,
@@ -57,8 +65,6 @@ export class AssistantRequestService {
     } catch (e) {
       answer.text = e;
     }
-
-    const qrCode = await QRCode.toDataURL("https://google.com", { margin: 10 });
 
     // answer.image = qrCode //'https://www.docusign.com/sites/default/files/styles/logo_thumbnail__1x__155x_95_/public/solution_showcase_logo/quickbaselogo.png'
     return answer;
@@ -144,8 +150,15 @@ export class AssistantRequestService {
         }
         break;
 
-      case "D_3_User_token":
-        await this._appService.deployApp(userId);
+      case "D_2_Deployment_done":
+        await this._assistantService.sendTextMessageFromAssistant(
+          userId,
+          "Please wait, deployment in process..."
+        );
+        const qrData = await this._appService.deployApp(userId);
+        answer.image = await QRCode.toDataURL(JSON.stringify(qrData), {
+          margin: 25
+        });
         break;
     }
 

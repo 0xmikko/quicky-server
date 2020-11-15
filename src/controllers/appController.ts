@@ -56,10 +56,10 @@ export class AppController implements SocketController {
         socket.ok(opHash);
       },
 
-      new: async (url: string, opHash: string) => {
-        await this._service.connectApp(userId, url);
-        socket.ok(opHash);
-      },
+      // new: async (url: string, opHash: string) => {
+      //   await this._service.connectApp(userId, url);
+      //   socket.ok(opHash);
+      // },
 
       reset: async (_: string, opHash: string) => {
         await this._assistantService.clearSession(userId);

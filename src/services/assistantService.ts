@@ -38,6 +38,8 @@ export class AssistantService {
 
   async start() {
     this._chatService = Container.get(ChatService);
+    this._assistantRequestService = Container.get(AssistantRequestService);
+    this._assistantRequestService.assistantService = this;
     const assistant = new User();
     assistant._id = this.ASSISTANT_ID;
     assistant.name = "Quicky";
@@ -93,18 +95,22 @@ export class AssistantService {
     await this._appService.clearApp(userId);
 
 
-    const message = new Message();
-    message.owner = userId;
-    message.text = "Session reset";
-    message.user = this.ASSISTANT_ID;
-
-    await this._chatService.sendMessage(userId, message);
+    await this.sendTextMessageFromAssistant(userId,  "Session reset")
     await this._chatService.archiveMessages(userId);
 
     const redisClient = RedisCache.client;
     await redisClient.del(`DF_SESSION_${userId}`);
 
     await this.checkFirstMessage(userId);
+  }
+
+  async sendTextMessageFromAssistant(userId: string, text: string) {
+    const message = new Message();
+    message.owner = userId;
+    message.text = text;
+    message.user = this.ASSISTANT_ID;
+
+    await this._chatService.sendMessage(userId, message);
   }
 
   // PROTECTED METHODS
