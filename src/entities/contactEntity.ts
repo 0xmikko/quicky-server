@@ -13,6 +13,9 @@ export class ContactEntity extends AppEntity {
   lastName: string;
 
   @Property()
+  company: string;
+
+  @Property()
   email: string;
 
   @Property()
@@ -35,6 +38,7 @@ export class ContactEntity extends AppEntity {
       firstName: new Field("First name", "text"),
       lastName:new Field("Last name", "text"),
       email: new Field("Email", "text"),
+      company: new Field("Company", "text"),
     }
   }
 

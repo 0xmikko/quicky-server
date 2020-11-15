@@ -18,6 +18,18 @@ import { DialogFlowParams } from "./dialogFlow";
 export class App extends TimeStamps {
   _id: string;
 
+
+  constructor() {
+    super();
+    this.name = "New app";
+    this.splashTitle = "Quicky";
+    this.splashSubtitle = "AI app builder";
+    this.splashTitleColor = "white";
+    this.splashSubtitleColor = "white";
+    this.splashBackground = "#763e9a";
+    this.logoUrl = "https://mobile.quicky.digital/app_logo.png"
+  }
+
   @Property()
   qbAppId: string;
 
@@ -69,15 +81,20 @@ export class App extends TimeStamps {
     return this._id;
   }
 
+  // Updates App object with new set of Dialog flow params
+
   public updateWithDFParams(params: DialogFlowParams) {
     this.splashTitle = params.splash_title?.stringValue || this.splashTitle;
 
     this.splashSubtitle =
       params.splash_subtitle?.stringValue || this.splashSubtitle;
+
     this.splashTitleColor =
       params.splash_title_color?.stringValue || this.splashTitleColor;
+
     this.splashSubtitleColor =
       params.splash_subtitleColor?.stringValue || this.splashSubtitleColor;
+
     this.splashBackground =
       params.splash_background?.stringValue || this.splashBackground;
   }

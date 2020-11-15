@@ -43,14 +43,11 @@ export class AppService extends SocketPusherDelegate {
 
     const tables = await this._qbRepository.getTables(appId, qbCredentials);
 
-    console.log(tables);
-
     for (let table of tables) {
       const fields = await this._qbRepository.getFields(
         table.id,
         qbCredentials
       );
-      console.log(fields);
     }
   }
 
@@ -63,22 +60,17 @@ export class AppService extends SocketPusherDelegate {
     if (app !== null) return app;
 
     app = new App();
-    app.name = "New app";
-    app.splashTitle = "Quicky";
-    app.splashSubtitle = "AI app builder";
-    app.splashTitleColor = "white";
-    app.splashSubtitleColor = "white";
-    app.splashBackground = "#763e9a";
-
     app.owner = userId;
-
     return await this._repository.insert(app);
   }
 
+  /*
+    MANAGING APP
+   */
+
   // update a property for current app
   async updateProperty(userId: string, params: DialogFlowParams) {
-    let app = await this._repository.findByUser(userId);
-    if (app === null) throw new Error("App not found");
+    const app = await this._getAppOrThrow(userId);
 
     app.updateWithDFParams(params);
 
@@ -87,8 +79,7 @@ export class AppService extends SocketPusherDelegate {
   }
 
   async addEntity(userId: string, entityName: string, entityType: EntityType) {
-    let app = await this._repository.findByUser(userId);
-    if (app === null) throw new Error("App not found");
+    const app = await this._getAppOrThrow(userId);
 
     // For new applications add new Setting entity
     if (app.entities.length === 0) {
@@ -116,17 +107,14 @@ export class AppService extends SocketPusherDelegate {
         throw new Error("Unknown entity");
     }
 
-    console.log(app);
     entity.order = app.entities.length;
     app.entities.push(entity);
-    console.log(app);
     await this._repository.upsert(app);
     this._updateApp(userId, app);
   }
 
   async deployApp(userId: string) {
-    let app = await this._repository.findByUser(userId);
-    if (app === null) throw new Error("App not found");
+    const app = await this._getAppOrThrow(userId);
 
     const qbCredentials = await this._userRepository.getQBTokenElseThrow(
       userId
@@ -134,75 +122,22 @@ export class AppService extends SocketPusherDelegate {
 
     if (app.qbAppId === undefined)
       throw new Error("QuickBase app id is not set!");
-    console.log("QQB", app.qbAppId);
 
     const updatedEntities: AppEntity[] = [];
     for (let entity of app.entities) {
       if (entity.type !== "Contact") continue;
-      let updEntity = await this.deployEntity(
+      let updEntity = await this._deployEntity(
         qbCredentials,
         app.qbAppId,
         entity
       );
-      updEntity = await this.findIdField(qbCredentials, updEntity);
+      updEntity = await this._findIdField(qbCredentials, updEntity);
       updEntity.isDeployed = true;
       updatedEntities.push(updEntity);
     }
     app.entities = updatedEntities;
 
     await this._repository.upsert(app);
-  }
-
-  async deployEntity(
-    qbCredentials: QBCredentials,
-    appId: string,
-    entity: AppEntity
-  ) {
-    const tableId = await this._qbRepository.createTableFromEntity(
-      appId,
-      entity,
-      qbCredentials
-    );
-
-    entity.tableId = tableId;
-    console.log("NEW TABLE WAS CREATED", tableId);
-
-    if (entity.dataMapper === null || entity.dataMapper === undefined)
-      return entity;
-
-    // Adding fields
-    for (let e of Object.entries(entity.dataMapper)) {
-      const key = e[0];
-      const field = e[1];
-      if (field.fieldType === "recordid") continue;
-      const fieldId = await this._qbRepository.createFieldAtTable(
-        tableId,
-        field,
-        qbCredentials
-      );
-      field.id = fieldId;
-      entity.dataMapper[key] = field;
-    }
-
-    return entity;
-  }
-
-  async findIdField(
-    qbCredentials: QBCredentials,
-    entity: AppEntity
-  ): Promise<AppEntity> {
-    const fields = await this._qbRepository.getFields(
-      entity.tableId,
-      qbCredentials
-    );
-    for (let field of fields) {
-      console.log("Fie;d", field);
-      if (field.fieldType === "recordid") {
-        entity.dataMapper["id"] = new Field("id", "recordid");
-        entity.dataMapper["id"].id = field.id;
-      }
-    }
-    return entity;
   }
 
   // clears all info of current app
@@ -244,8 +179,7 @@ export class AppService extends SocketPusherDelegate {
     if (!allowedFields.includes(fieldType))
       throw new Error("Field type is not supported");
 
-    let app = await this._repository.findByUser(userId);
-    if (app === null) throw new Error("App not found");
+    const app = await this._getAppOrThrow(userId);
 
     app.entities = app.entities.map(entity => {
       if (entity.name === currentScreen) {
@@ -261,26 +195,22 @@ export class AppService extends SocketPusherDelegate {
     this._updateApp(userId, app);
   }
 
-
   // Return list of screen names of app for current user
   async listScreens(userId: string): Promise<string[]> {
-    let app = await this._repository.findByUser(userId);
-    if (app === null) throw new Error("App not found");
+    const app = await this._getAppOrThrow(userId);
     return app.entities.map(e => e.name);
   }
 
   // Delete screen with particular name in app found by userId
   async deleteScreen(userId: string, name: string) {
-    let app = await this._repository.findByUser(userId);
-    if (app === null) throw new Error("App not found");
+    const app = await this._getAppOrThrow(userId);
     app.entities = app.entities.filter(ent => ent.name !== name);
     await this._repository.upsert(app);
     this._updateApp(userId, app);
   }
 
   async switchToScreen(userId: string, current_screen: string) {
-    let app = await this._repository.findByUser(userId);
-    if (app === null) throw new Error("App not found");
+    const app = await this._getAppOrThrow(userId);
     const screenType = app.entities.filter(ent => ent.name === current_screen);
     if (screenType.length === 0) throw new Error("Screen not found");
 
@@ -291,6 +221,68 @@ export class AppService extends SocketPusherDelegate {
     });
   }
 
+  /*
+     PROTECTED METHODS
+   */
+
+  // Get current user app or throw error
+  protected async _getAppOrThrow(userId: string): Promise<App> {
+    const app = await this._repository.findByUser(userId);
+    if (app === null) throw new Error("App not found");
+    return app;
+  }
+
+  protected async _findIdField(
+    qbCredentials: QBCredentials,
+    entity: AppEntity
+  ): Promise<AppEntity> {
+    const fields = await this._qbRepository.getFields(
+      entity.tableId,
+      qbCredentials
+    );
+    for (let field of fields) {
+      console.log("Fie;d", field);
+      if (field.fieldType === "recordid") {
+        entity.dataMapper["id"] = new Field("id", "recordid");
+        entity.dataMapper["id"].id = field.id;
+      }
+    }
+    return entity;
+  }
+
+  protected async _deployEntity(
+    qbCredentials: QBCredentials,
+    appId: string,
+    entity: AppEntity
+  ) {
+    const tableId = await this._qbRepository.createTableFromEntity(
+      appId,
+      entity,
+      qbCredentials
+    );
+
+    entity.tableId = tableId;
+    console.log("NEW TABLE WAS CREATED", tableId);
+
+    if (entity.dataMapper === null || entity.dataMapper === undefined)
+      return entity;
+
+    // Adding fields
+    for (let e of Object.entries(entity.dataMapper)) {
+      const key = e[0];
+      const field = e[1];
+      if (field.fieldType === "recordid") continue;
+      const fieldId = await this._qbRepository.createFieldAtTable(
+        tableId,
+        field,
+        qbCredentials
+      );
+      field.id = fieldId;
+      entity.dataMapper[key] = field;
+    }
+
+    return entity;
+  }
 
   // Update mobile state using websocket
   protected _updateApp(userId: string, app: App) {
