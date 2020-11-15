@@ -127,7 +127,6 @@ export class AppService extends SocketPusherDelegate {
 
     const updatedEntities: AppEntity[] = [];
     for (let entity of app.entities) {
-      if (entity.type === "Setting") continue;
       let updEntity = await this._deployEntity(
         qbCredentials,
         app.qbAppId,
@@ -138,6 +137,8 @@ export class AppService extends SocketPusherDelegate {
       updatedEntities.push(updEntity);
     }
     app.entities = updatedEntities;
+
+    await this._deployAppSettings(app, qbCredentials);
 
     await this._repository.upsert(app);
 
@@ -291,6 +292,19 @@ export class AppService extends SocketPusherDelegate {
     }
 
     return entity;
+  }
+
+  protected async _deployAppSettings(app: App, qbCredentials: QBCredentials) {
+    const settingsEntity = app.entities.filter(e => e.type === "Setting");
+    if (settingsEntity.length !== 1)
+      throw new Error("Cant find setting entity");
+    await this._qbRepository.createRecord(
+      settingsEntity[0].tableId,
+      {
+        6: { value: JSON.stringify(app) }
+      },
+      qbCredentials
+    );
   }
 
   // Update mobile state using websocket

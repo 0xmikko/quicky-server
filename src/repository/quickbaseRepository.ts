@@ -6,11 +6,12 @@ import { Service } from "typedi";
 import { MongoRepository } from "./mongoRepository";
 import { App } from "../core/app";
 import { transformAndValidate } from "class-transformer-validator";
-import {AppPayload, QBCredentials} from "../payload/appPayload";
+import { AppPayload, QBCredentials } from "../payload/appPayload";
 import { FieldPayload } from "../payload/fieldPayload";
 import { TablePayload } from "../payload/tablePayload";
 import { AppEntity } from "../core/appEntity";
-import {Field} from "../core/field";
+import { Field } from "../core/field";
+import {RecordValue} from "../payload/recordsPayload";
 
 @Service()
 export class QuickbaseRepository extends MongoRepository<App> {
@@ -32,7 +33,7 @@ export class QuickbaseRepository extends MongoRepository<App> {
 
   async getTables(
     appId: string,
-    qbCredentials: QBCredentials,
+    qbCredentials: QBCredentials
   ): Promise<TablePayload[]> {
     const tablesDataRaw = await this.get(
       `/tables?appId=${appId}`,
@@ -71,7 +72,7 @@ export class QuickbaseRepository extends MongoRepository<App> {
     appId: string,
     entity: AppEntity,
     qbCredentials: QBCredentials
-  ) : Promise<string> {
+  ): Promise<string> {
     const tablesDataRaw = await this.post(
       `/tables?appId=${appId}`,
       qbCredentials,
@@ -84,29 +85,40 @@ export class QuickbaseRepository extends MongoRepository<App> {
     );
 
     if (tablesDataRaw.status !== 201 && tablesDataRaw.status !== 200) {
-      throw new Error("Network error, cant create Quickbase table ")
+      throw new Error("Network error, cant create Quickbase table ");
     }
 
     return tablesDataRaw.data.id;
   }
 
   async createFieldAtTable(
-      tableId: string,
-      field: Field,
-      qbCredentials: QBCredentials
-  ) : Promise<string> {
+    tableId: string,
+    field: Field,
+    qbCredentials: QBCredentials
+  ): Promise<string> {
     const fieldDataRaw = await this.post(
-        `/fields?tableId=${tableId}`,
-        qbCredentials,
-        FieldPayload.fromField(field),
+      `/fields?tableId=${tableId}`,
+      qbCredentials,
+      FieldPayload.fromField(field)
     );
 
     if (fieldDataRaw.status !== 201 && fieldDataRaw.status !== 200) {
-      throw new Error("Network error, cant create Quickbase table ")
+      throw new Error("Network error, cant create Quickbase table ");
     }
 
-    console.log(fieldDataRaw.data)
+    console.log(fieldDataRaw.data);
     return fieldDataRaw.data.id;
+  }
+
+  async createRecord(
+    tableId: string,
+    data: Record<number, RecordValue>,
+    qbCredentials: QBCredentials
+  ) {
+    await this.post(`/records`, qbCredentials, {
+      to: tableId,
+      data: [data]
+    });
   }
 
   async get(

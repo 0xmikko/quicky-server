@@ -40,7 +40,7 @@ export class AppPayload {
 }
 
 export interface AppDeploymentData {
-    appId: string,
-    hostName: string,
-    token: string
+  appId: string;
+  hostName: string;
+  token: string;
 }
