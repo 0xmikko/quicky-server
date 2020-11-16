@@ -1,6 +1,8 @@
 # Quicky. 
 AI powered Quick Base® App Builder
 
+![Quicky 022](https://user-images.githubusercontent.com/26343374/99307422-8ac76d00-2867-11eb-91ba-eceefecc2880.jpeg)
+
 # Repositories
 The project consists of 5 repositories:  
 https://github.com/MikaelLazarev/quicky-server/ - Backend  
