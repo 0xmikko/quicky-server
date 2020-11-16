@@ -2,11 +2,11 @@
 AI powered Quick Base® App Builder
 
 # Repositories
-The project consists of 5 repositories:
-https://github.com/MikaelLazarev/quicky-server/ - Backend
-https://github.com/MikaelLazarev/quicky-builder - Front end (https://app.quicky.digital)
-https://github.com/MikaelLazarev/quicky-mobile-web - Mobile app preview 
-https://github.com/MikaelLazarev/quicky-landing - Landing page (https://quicky.digital)
+The project consists of 5 repositories:  
+https://github.com/MikaelLazarev/quicky-server/ - Backend  
+https://github.com/MikaelLazarev/quicky-builder - Front end (https://app.quicky.digital)  
+https://github.com/MikaelLazarev/quicky-mobile-web - Mobile app preview  
+https://github.com/MikaelLazarev/quicky-landing - Landing page (https://quicky.digital)  
 
 # Inspiration
 
