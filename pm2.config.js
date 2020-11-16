@@ -4,7 +4,7 @@ module.exports = {
     name: "quicky-server",
     script: "./build/index.js",
     node_args: "-r dotenv/config",
-    instances: "4",
+    instances: "1",
     env: {
       NODE_ENV: "development",
     },
