@@ -18,11 +18,8 @@ export class ProjectEntity extends AppEntity {
       priority: new Field("Priority", "text"),
       projectCondition: new Field("Condition", "text"),
       startDate: new Field("Start date", "timestamp"),
-      finishDate: new Field("Finish date", "timestamp")
+      finishDate: new Field("Finish date", "timestamp"),
+      ContactId: new Field("ContactId", "numeric")
     };
-  }
-
-  deploy(): Promise<void> {
-    return Promise.resolve(undefined);
   }
 }

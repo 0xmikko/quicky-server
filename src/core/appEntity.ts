@@ -6,11 +6,7 @@ import { Field } from "./field";
 
 export type EntityType = "Contact" | "Task" | "Project" | "Setting";
 
-export interface IAppEntity {
-  deploy(): Promise<void>;
-}
-
-export abstract class AppEntity implements IAppEntity {
+export abstract class AppEntity  {
   @Property()
   name: string;
 
@@ -44,5 +40,4 @@ export abstract class AppEntity implements IAppEntity {
   @Property()
   isDeployed: boolean
 
-  abstract deploy(): Promise<void>;
 }

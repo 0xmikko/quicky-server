@@ -14,6 +14,7 @@ import { ProjectEntity } from "../entities/projectEntity";
 import { allowedFields, Field, FieldType } from "../core/field";
 import { AppDeploymentData, QBCredentials } from "../payload/appPayload";
 import { DialogFlowParams } from "../core/dialogFlow";
+import { TaskEntity } from "../entities/taskEntity";
 
 @Service()
 export class AppService extends SocketPusherDelegate {
@@ -25,31 +26,6 @@ export class AppService extends SocketPusherDelegate {
 
   @Inject()
   private _userRepository: UserRepository;
-
-  // async connectApp(userId: string, url: string) {
-  //   const qbCredentials = await this._userRepository.getQBTokenElseThrow(
-  //     userId
-  //   );
-  //
-  //   const appId = "bqyg6th9t";
-  //   const hostName = "hackathon20-mlazarev.quickbase.com";
-  //
-  //   // Getting app
-  //   const app = await this._qbRepository.getApp(appId, qbCredentials);
-  //   app.qbHostName = hostName;
-  //
-  //   // Creating / updating app in database
-  //   await this._repository.upsert(app);
-  //
-  //   const tables = await this._qbRepository.getTables(appId, qbCredentials);
-  //
-  //   for (let table of tables) {
-  //     const fields = await this._qbRepository.getFields(
-  //       table.id,
-  //       qbCredentials
-  //     );
-  //   }
-  // }
 
   async list(userId: string): Promise<App[]> {
     return await this._repository.listByUser(userId);
@@ -83,7 +59,7 @@ export class AppService extends SocketPusherDelegate {
 
     // For new applications add new Setting entity
     if (app.entities.length === 0) {
-      console.log("Adding settong");
+      console.log("Adding settings");
       const settingsEntity = new SettingsEntity();
       app.entities.push(settingsEntity);
     } else {
@@ -97,16 +73,17 @@ export class AppService extends SocketPusherDelegate {
     switch (entityType) {
       case "Contact":
         entity = new ContactEntity();
-        entity.name = entityName;
         break;
       case "Project":
         entity = new ProjectEntity();
-        entity.name = entityName;
+        break;
+      case "Task":
+        entity = new TaskEntity();
         break;
       default:
         throw new Error("Unknown entity");
     }
-
+    entity.name = entityName;
     entity.order = app.entities.length;
     app.entities.push(entity);
     await this._repository.upsert(app);
@@ -126,7 +103,8 @@ export class AppService extends SocketPusherDelegate {
       throw new Error("QuickBase app id is not set!");
 
     const updatedEntities: AppEntity[] = [];
-    for (let entity of app.entities) {
+    const orderedEntities = app.entities.sort((a, b) => a.order - b.order);
+    for (let entity of orderedEntities) {
       let updEntity = await this._deployEntity(
         qbCredentials,
         app.qbAppId,
@@ -167,13 +145,20 @@ export class AppService extends SocketPusherDelegate {
   ): Promise<void> {
     // case "entity":
     switch (type.toLowerCase()) {
-      default:
+      case "customers":
       case "contacts":
         await this.addEntity(userId, name, "Contact");
         break;
       case "projects":
         await this.addEntity(userId, name, "Project");
         break;
+      case "tasks":
+        await this.addEntity(userId, name, "Task");
+        break;
+      default:
+        throw new Error(
+          `This screen: ${type} doesn't found. Please, reset the app and start from the beginnig`
+        );
     }
   }
 
