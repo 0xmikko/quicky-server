@@ -22,7 +22,7 @@ export class App extends TimeStamps {
     super();
     this.name = "New app";
     this.splashTitle = "Quicky";
-    this.splashSubtitle = "AI app builder";
+    this.splashSubtitle = "AI powered Quick Base® App Builder";
     this.splashTitleColor = "white";
     this.splashSubtitleColor = "white";
     this.splashBackground = "#763e9a";
