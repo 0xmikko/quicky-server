@@ -15,6 +15,8 @@ export class ContactEntity extends AppEntity {
     this.dataMapper = {
       firstName: new Field("First name", "text"),
       lastName: new Field("Last name", "text"),
+      phone: new Field("Phone", "text"),
+      mobile: new Field("Mobile", "text"),
       email: new Field("Email", "text"),
       company: new Field("Company", "text")
     };
